@@ -147,3 +147,124 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio || 1);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+// -------- Popup JS (updated) --------
+
+// -------- Popup JS (updated with image) --------
+
+// الصورة المشتركة لكل البوب-أب
+const DEFAULT_IMAGE = "./src/assets/img/911ClassicGreen.JPG";
+
+// بيانات النصوص لكل نقطة
+const POINTS_DATA = {
+  'pulse-point1': {
+    text: "Front trunk (Frunk): lightweight storage improving weight distribution."
+  },
+  'pulse-point2': {
+    text: "Iconic round headlamps: a 911 signature since the 1960s."
+  },
+  'pulse-point3': {
+    text: "Rear-engine layout: exceptional traction and unique handling balance."
+  }
+};
+
+// fallback عبارات عامة
+const facts = [
+  "The Porsche 911 is renowned for its rear-engine layout.",
+  "First introduced in 1964, the 911 became an icon of performance.",
+  "Modern 911s use twin-turbo flat-six engines.",
+  "The 911 balances daily usability with track capability.",
+  "GT3 variants are naturally aspirated and rev to the moon."
+];
+const randomFact = () => facts[Math.floor(Math.random() * facts.length)];
+
+// عناصر البوب-أب
+const popup = document.getElementById('popup');
+const popupContent = document.getElementById('popup-content');
+const popupImage = document.getElementById('popup-image');
+const closeBtn = popup.querySelector('.close-btn');
+
+// إظهار البوب-أب عند (x,y)
+function showPopupAt(x, y, data) {
+  const text = data?.text || randomFact();
+
+  popupContent.textContent = text;
+
+  if (popupImage) {
+    popupImage.src = "./src/assets/img/911ClassicGreen.JPG"; // نفس الصورة للجميع
+    popupImage.style.display = 'block';
+  }
+
+  // أظهر مؤقتًا لحساب الأبعاد بدقة
+  popup.style.display = 'block';
+  popup.style.transform = 'translate(-50%, -100%)';
+
+  // ضبط موقع مبدئي فوق النقطة
+  let top = y - 16;
+  let leftCenter = x;
+
+  // احسب أبعاد الصندوق
+  let rect = popup.getBoundingClientRect();
+  const margin = 12;
+
+  // Clamp أفقي
+  let left = Math.min(
+    Math.max(leftCenter - rect.width / 2, margin),
+    window.innerWidth - rect.width - margin
+  );
+  leftCenter = left + rect.width / 2;
+
+  // لو خرج للأعلى → نزّله تحت النقطة
+  if (rect.height + 24 > y || (top - rect.height) < margin) {
+    top = y + 20;
+    popup.style.transform = 'translate(-50%, 0%)';
+  }
+
+  // لو نازل زيادة لتحت → ارفع للأعلى بقدر الممكن
+  rect = popup.getBoundingClientRect();
+  const maxTop = window.innerHeight - rect.height - margin;
+  if (top > maxTop) top = Math.max(margin, maxTop);
+
+  popup.style.left = `${leftCenter}px`;
+  popup.style.top  = `${top}px`;
+}
+
+// إغلاق
+function hidePopup() { popup.style.display = 'none'; }
+
+if (closeBtn) {
+  closeBtn.addEventListener('click', (e) => { e.stopPropagation(); hidePopup(); });
+}
+
+// ربط الأحداث بالنقاط
+pulseEls.forEach(({ el }) => {
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top;
+    const data = POINTS_DATA[el.id] || null;
+    showPopupAt(x, y, data);
+  });
+});
+
+// إغلاق عند الضغط خارج
+document.addEventListener('click', (e) => {
+  if (popup.style.display === 'block' && !popup.contains(e.target)) hidePopup();
+});
+
+// إغلاق عند ESC
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopup(); });
+
+// -------- /Popup JS --------

@@ -10,7 +10,6 @@
     top: 0;
 }
 
-/* أو absolute حسب مكانك */
 .pulse {
   position: fixed;
   width: 20px;
@@ -18,13 +17,116 @@
   background-color: aqua;
   border-radius: 50%;
   animation: pulse 1s infinite alternate;
-  pointer-events: none;            /* لا تعطل تفاعلات الماوس */
-  transform: translate(-50%, -50%);/* لتمركز العنصر فوق النقطة بدقة */
+  transform: translate(-50%, -50%);
   z-index: 999;
-  display: none;                  /* مخفي افتراضيًا حتى نضعه في الموضع المناسب */
+  display: none;
+  cursor: pointer;  /* الآن اليد تشتغل */
 }
+
 
 @keyframes pulse {
   from { transform: translate(-50%, -50%) scale(1); }
   to   { transform: translate(-50%, -50%) scale(1.5); }
 }
+
+
+
+
+
+
+
+/* Popup – أنيق وخفيف + أبعاد منضبطة */
+.popup {
+  position: fixed;
+  inset: auto auto 0 0;                 /* سنضبط الإحداثيات بالـ JS */
+  transform: translate(-50%, -100%);    /* تتمركز فوق النقطة مع السهم */
+  display: none;
+
+  /* عرض وارتفاع متحكم فيهما */
+  width: clamp(260px, 86vw, 360px);     /* أصغر/أكبر عرض مسموح */
+  max-height: min(70vh, 320px);         /* لا يطوّل كثير */
+  overflow: hidden;                     /* يمنع تمدد داخلي */
+
+  /* شكل */
+  padding: 14px 16px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  color: #111;
+  line-height: 1.45;
+  font-size: 15px;
+  z-index: 1000;
+  animation: pop-in 140ms ease-out;
+  user-select: text;
+
+  /* تخطيط داخلي */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* السهم الصغير */
+.popup::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  backdrop-filter: inherit;
+  border-left: 1px solid rgba(0,0,0,0.12);
+  border-bottom: 1px solid rgba(0,0,0,0.12);
+  border-radius: 2px;
+}
+
+/* زر إغلاق دائري صغير */
+.popup .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.9);
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  color: #333;
+  transition: transform .08s ease, background .12s ease;
+}
+.popup .close-btn:hover { transform: scale(1.06); background: #fff; }
+
+/* الصورة: نسبة أبعاد ثابتة بلا تشويه */
+.popup-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;     /* عدّلها إذا بدك نسبة مختلفة */
+  object-fit: contain;      /* إظهار الصورة كاملة بلا قصّ */
+  background: rgba(0,0,0,0.04); /* خلفية خفيفة للفراغات الجانبية */
+  border-radius: 10px;
+  display: block;
+  flex: 0 0 auto;
+  margin: 0;                /* أزل الهوامش غير الضرورية */
+}
+
+/* النص: يتمرّر داخليًا عند الزيادة */
+#popup-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 8px 4px;
+  background: transparent;  /* يمنع لون رمادي موروث */
+}
+
+/* حركة الظهور */
+@keyframes pop-in {
+  from { opacity: 0; transform: translate(-50%, -96%) scale(.98); }
+  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+
