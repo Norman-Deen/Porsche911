@@ -4,9 +4,27 @@
     background-color: rgb(178, 178, 178);
 }
 
-
 .canvas{
     position: fixed;
     left: 0;
     top: 0;
+}
+
+/* أو absolute حسب مكانك */
+.pulse {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  background-color: aqua;
+  border-radius: 50%;
+  animation: pulse 1s infinite alternate;
+  pointer-events: none;            /* لا تعطل تفاعلات الماوس */
+  transform: translate(-50%, -50%);/* لتمركز العنصر فوق النقطة بدقة */
+  z-index: 999;
+  display: none;                  /* مخفي افتراضيًا حتى نضعه في الموضع المناسب */
+}
+
+@keyframes pulse {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to   { transform: translate(-50%, -50%) scale(1.5); }
 }
