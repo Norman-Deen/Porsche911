@@ -47,6 +47,14 @@
 }
 .btn:hover { background: #333; }
 
+#fade {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1800;
+}
 
 
 .canvas{
