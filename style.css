@@ -11,7 +11,7 @@
 }
 
 .pulse {
-  position: fixed;
+  position: absolute;   /* بدل fixed */
   width: 20px;
   height: 20px;
   background-color: aqua;
@@ -20,7 +20,7 @@
   transform: translate(-50%, -50%);
   z-index: 999;
   display: none;
-  cursor: pointer;  /* الآن اليد تشتغل */
+  cursor: pointer;
 }
 
 
@@ -40,7 +40,7 @@
   position: fixed;
   inset: auto auto 0 0;                 /* سنضبط الإحداثيات بالـ JS */
   transform: translate(-50%, -100%);    /* تتمركز فوق النقطة مع السهم */
-  display: none;
+  display: none;                         /* مخفي افتراضياً */
 
   /* عرض وارتفاع متحكم فيهما */
   width: clamp(260px, 86vw, 360px);     /* أصغر/أكبر عرض مسموح */
@@ -63,7 +63,7 @@
   user-select: text;
 
   /* تخطيط داخلي */
-  display: flex;
+  /* لا تكتب display ثانية هنا */
   flex-direction: column;
   gap: 10px;
 }

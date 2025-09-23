@@ -219,7 +219,7 @@ function showPopupAt(x, y, data) {
   }
 
   // أظهر مؤقتًا لحساب الأبعاد بدقة
-  popup.style.display = 'block';
+  popup.style.display = 'flex';
   popup.style.transform = 'translate(-50%, -100%)';
 
   // ضبط موقع مبدئي فوق النقطة
