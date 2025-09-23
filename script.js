@@ -52,6 +52,89 @@ new RGBELoader().load("./src/MR_INT-005_WhiteNeons_NAD.hdr", (hdr) => {
       car.position.y -= 0.09;
     scene.add(car);
 
+ 
+
+
+    // طلاء أخضر معدني للهيكل
+// مصفوفة نخزن فيها خامات الطلاء
+const paintMats = [];
+
+car.traverse((obj) => {
+  if (!obj.isMesh || !obj.material) return;
+  const m = obj.material;
+
+  const name = (m.name || obj.name || "").toLowerCase();
+  const looksLikePaint =
+    name.includes("body") || name.includes("paint") || name.includes("carpaint");
+
+  if (m.metalness !== undefined && m.roughness !== undefined && looksLikePaint) {
+    // خزّن القيم الأصلية للرجوع إليها
+    m.userData._origColor = m.color.clone();
+    m.userData._origMetal = m.metalness;
+    m.userData._origRough = m.roughness;
+    m.userData._origClear = ("clearcoat" in m) ? m.clearcoat : undefined;
+    m.userData._origClearR = ("clearcoatRoughness" in m) ? m.clearcoatRoughness : undefined;
+    m.userData._origTransparent = m.transparent;
+    m.userData._origOpacity = m.opacity;
+
+    paintMats.push(m);
+  }
+});
+
+// دالة لتعيين اللون مع دعم hex 6 أو 8 خانات
+function setHexWithAlpha(material, hex) {
+  if (hex.length === 9) { // #RRGGBBAA
+    const rgb = hex.slice(0, 7);
+    const alpha = parseInt(hex.slice(7, 9), 16) / 255;
+    material.color.set(rgb);
+    material.transparent = true;
+    material.opacity = alpha;
+  } else {
+    material.color.set(hex);
+    material.transparent = material.userData._origTransparent;
+    material.opacity = material.userData._origOpacity;
+  }
+  material.needsUpdate = true;
+}
+
+// اربط بالـ Color Picker في الـ HTML
+const colorInput = document.getElementById('paintColor');
+const resetBtn   = document.getElementById('resetPaint');
+
+colorInput?.addEventListener('input', () => {
+  const hex = colorInput.value; // يعطي #RRGGBB
+  paintMats.forEach((m) => {
+    setHexWithAlpha(m, hex);
+    m.metalness = 0.95;
+    m.roughness = 0.18;
+    if ("clearcoat" in m) {
+      m.clearcoat = 0.1;
+      m.clearcoatRoughness = 0.1;
+    }
+  });
+});
+
+// زر لإرجاع الألوان الأصلية
+resetBtn?.addEventListener('click', () => {
+  paintMats.forEach((m) => {
+    if (m.userData._origColor) m.color.copy(m.userData._origColor);
+    if (m.userData._origMetal !== undefined)   m.metalness = m.userData._origMetal;
+    if (m.userData._origRough !== undefined)   m.roughness = m.userData._origRough;
+    if (m.userData._origClear !== undefined)   m.clearcoat = m.userData._origClear;
+    if (m.userData._origClearR !== undefined)  m.clearcoatRoughness = m.userData._origClearR;
+    m.transparent = m.userData._origTransparent;
+    m.opacity     = m.userData._origOpacity;
+    m.needsUpdate = true;
+  });
+});
+
+
+
+
+
+
+//end
+
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
