@@ -5,6 +5,9 @@
 const currentCamera = scene.children.find(obj => obj.isCamera);
 console.log(currentCamera.position);
 
+logCameraInfo();
+
+
 
 
 

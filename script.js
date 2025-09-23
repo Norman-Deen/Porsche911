@@ -5,6 +5,9 @@ import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from './three/examples/jsm/loaders/DRACOLoader.js';
 import { RGBELoader } from './three/examples/jsm/loaders/RGBELoader.js';
 
+import { playCameraMove } from './animate.js';
+
+
 // إنشاء مشهد
 const scene = new THREE.Scene();
 window.scene = scene;
@@ -61,6 +64,11 @@ new RGBELoader().load("./src/MR_INT-005_WhiteNeons_NAD.hdr", (hdr) => {
 
 
 
+//animate.js
+document.getElementById("startAnimBtn").addEventListener("click", () => {
+  playCameraMove(camera1, orbitControls);
+});
+
 
 
 // Point 1
@@ -107,10 +115,14 @@ renderer.toneMappingExposure = 4;
 // OrbitControls
 const orbitControls = new OrbitControls(camera1, renderer.domElement);
 orbitControls.enableDamping = true;
+window.orbitControls = orbitControls; // ⬅️ هيك  كمان متاحة
+
 
 // Grid
 const gridMain = new THREE.GridHelper();
 scene.add(gridMain);
+//scene.fog = new THREE.FogExp2(0xaaaaaa, 0.04);
+
 
 // ربط عناصر الـ HTML
 const pulseEls = [
@@ -157,6 +169,8 @@ function animate() {
 animate();
 
 
+
+
  renderer.setClearAlpha(0); // يترك خلفية الصفحة (CSS) تظهر
 
 // اجعل المشهد يعيد التحجيم تلقائياً عند تغيير حجم النافذة
@@ -173,7 +187,22 @@ window.addEventListener('resize', () => {
 
 
 
-
+//only for get camera info
+function logCameraInfo() {
+  console.log("Keyframe:", {
+    pos: {
+      x: camera1.position.x,
+      y: camera1.position.y,
+      z: camera1.position.z
+    },
+    target: {
+      x: orbitControls.target.x,
+      y: orbitControls.target.y,
+      z: orbitControls.target.z
+    }
+  });
+}
+window.logCameraInfo = logCameraInfo;
 
 
 
