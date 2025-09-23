@@ -104,6 +104,9 @@ function fadeCut({ color="#000", inDur=0.7, hold=0.25, outDur=0.7, onMid=()=>{} 
   return tl;
 }
 
+
+
+//playCameraMove
 /* ===== التشغيل الدائم لكل اللقطات ===== */
 export function playCameraMove(
   camera, controls,
@@ -120,14 +123,46 @@ export function playCameraMove(
     fadeOut=0.7
   }={}
 ) {
-  if (controls) controls.enabled = false;
+ if (controls) controls.enabled = false;
+
+// أوقف أي توينات شغالة
+gsap.killTweensOf([camera.position, controls?.target]);
+
+// ثبّت الكاميرا فورًا على بداية Cut1
+camera.position.set(CUT1_START.pos.x, CUT1_START.pos.y, CUT1_START.pos.z);
+if (controls) {
+  controls.target.set(CUT1_START.target.x, CUT1_START.target.y, CUT1_START.target.z);
+  controls.update();
+} else {
+  camera.lookAt(CUT1_START.target.x, CUT1_START.target.y, CUT1_START.target.z);
+}
+
 
   const master = gsap.timeline({
     onComplete: () => { if (controls) controls.enabled = true; }
   });
 
-  // Cut1
-  master.add( tweenCut(camera, controls, CUT1_START, CUT1_END, { duration: cut1Duration, ease }) );
+// Cut1
+// Fade -> jump to CUT1_START
+
+master.add( fadeCut({
+  color: fadeColor, inDur: 0, hold: fadeHold, outDur: fadeOut,   // ⬅️ inDur:0
+  onMid: () => {
+    // (تقدر تترك onMid كما هو أو حتى تشيله لأننا سبَق وثبّتْنا الوضع)
+    camera.position.set(CUT1_START.pos.x, CUT1_START.pos.y, CUT1_START.pos.z);
+    if (controls) {
+      controls.target.set(CUT1_START.target.x, CUT1_START.target.y, CUT1_START.target.z);
+      controls.update();
+    } else {
+      camera.lookAt(CUT1_START.target.x, CUT1_START.target.y, CUT1_START.target.z);
+    }
+  }
+}) );
+
+
+// Cut1
+master.add( tweenCut(camera, controls, CUT1_START, CUT1_END, { duration: cut1Duration, ease }), ">" );
+
 
   // Fade -> jump to CUT2_START
   master.add( fadeCut({
