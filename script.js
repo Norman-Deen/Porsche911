@@ -5,41 +5,53 @@ import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from './three/examples/jsm/loaders/DRACOLoader.js';
 import { RGBELoader } from './three/examples/jsm/loaders/RGBELoader.js';
 
-
 // إنشاء مشهد
 const scene = new THREE.Scene();
-window.scene = scene; // ⬅️ هيك صار متاح بالـ Console
+window.scene = scene;
 
-// حضّر GLTFLoader أولاً ثم اضبط مسار الخامات
-const gltfLoader = new GLTFLoader();
-gltfLoader.setResourcePath("./src/assets/3d/");
+// ---- DRACO ----
+const loader = new GLTFLoader();
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+loader.setDRACOLoader(dracoLoader);
 
-const rgbeLoader = new RGBELoader();
+loader.load('./src/assets/3d/scene-draco.glb', (gltf) => {
+  const car = gltf.scene;
+  scene.add(car);
 
 
-// حمّل الـ HDR واضبط البيئة (لو عندك ملف HDR)
-rgbeLoader.load("./src/MR_INT-005_WhiteNeons_NAD.hdr", function (texture) {
-  texture.mapping = THREE.EquirectangularReflectionMapping;
-  scene.environment = texture;
+
+  // تفعيل الظلال للميشات
+  gltf.scene.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+      child.material.needsUpdate = true;
+    }
+  });
+});
+
+
+new RGBELoader().load("./src/MR_INT-005_WhiteNeons_NAD.hdr", (hdr) => {
+  hdr.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = hdr;
 
   // بعدين حمّل الموديل
-  gltfLoader.load(
-    "./src/assets/3d/scene.gltf",
-    (gltf) => {
-      const car = gltf.scene;
-      scene.add(car);
+  loader.load('./src/assets/3d/scene-draco.glb', (gltf) => {
+    const car = gltf.scene;
+    scene.add(car);
 
-      // 🔹 حرّك السيارة شوي (move فقط)
-      car.position.set(0, -0.09, 0);
+    gltf.scene.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        if (child.material) child.material.needsUpdate = true;
+      }
+    });
+  });
+});
 
-      window.car = car;
-    },
-    undefined,
-    (error) => {
-      console.error("❌ Error loading model:", error);
-    }
-  );
-}); // ⬅️ مهم: إغلاق استدعاء rgbeLoader.load
+
 
 
 
