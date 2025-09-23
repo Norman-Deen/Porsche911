@@ -34,18 +34,18 @@
 
 
 
-
-/* Popup – أنيق وخفيف + أبعاد منضبطة */
+/* Popup – أنيق وخفيف + دخول بلا قفزة */
 .popup {
   position: fixed;
-  inset: auto auto 0 0;                 /* سنضبط الإحداثيات بالـ JS */
-  transform: translate(-50%, -100%);    /* تتمركز فوق النقطة مع السهم */
-  display: none;                         /* مخفي افتراضياً */
+  left: 0;                          /* سيُضبط لاحقًا بالـ JS */
+  top: 0;                           /* سيُضبط لاحقًا بالـ JS */
+  transform: translate(-50%, -100%);/* افتراضيًا فوق النقطة */
+  display: none;
 
-  /* عرض وارتفاع متحكم فيهما */
-  width: clamp(260px, 86vw, 360px);     /* أصغر/أكبر عرض مسموح */
-  max-height: min(70vh, 320px);         /* لا يطوّل كثير */
-  overflow: hidden;                     /* يمنع تمدد داخلي */
+  /* أبعاد */
+  width: clamp(260px, 86vw, 360px);
+  max-height: none;    /* السماح بالتمدد */
+  overflow: visible;   /* ما يخفـي شيء */
 
   /* شكل */
   padding: 14px 16px 18px;
@@ -59,14 +59,52 @@
   line-height: 1.45;
   font-size: 15px;
   z-index: 1000;
-  animation: pop-in 140ms ease-out;
   user-select: text;
 
   /* تخطيط داخلي */
-  /* لا تكتب display ثانية هنا */
+  display: flex;
   flex-direction: column;
   gap: 10px;
+
+  /* مهم: انتقالات لا تشمل left/top */
+  transition: opacity .18s ease, transform .18s ease; /* لا تضيف left/top هون */
+
+  /* مصدر أنيميشن الانبثاق يكون “ثابت” من جهة السهم */
+  transform-origin: var(--arrow-x, 50%) var(--origin-y, 100%);
+
+  /* أداء (اختياري) */
+  will-change: transform, opacity; /* شِل left/top من will-change */
 }
+
+/* اختياري: أنيميشن دخول لا يغيّر موضع الترجمة (فقط scale/opacity) */
+@keyframes pop-in-stable {
+  from { opacity: 0; transform: translate(-50%, -100%) scale(0.98); }
+  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+/* لو بدك تستخدم الأنيميشن فوق، فعّله هيك: */
+/* .popup { animation: pop-in-stable 140ms ease-out; } */
+
+
+/* عطّل الأنيميشن أثناء القياس لتفادي الوميض */
+.popup.appearing { animation: none !important; }
+
+/* السهم الصغير (يبقى كما هو) */
+.popup::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  backdrop-filter: inherit;
+  border-left: 1px solid rgba(0,0,0,0.12);
+  border-bottom: 1px solid rgba(0,0,0,0.12);
+  border-radius: 2px;
+}
+
+/* زر الإغلاق والصورة وباقي التنسيقات تبقى كما هي عندك */
 
 /* السهم الصغير */
 .popup::after {
@@ -106,15 +144,13 @@
 
 /* الصورة: نسبة أبعاد ثابتة بلا تشويه */
 .popup-image {
-  width: 100%;
-  aspect-ratio: 16 / 9;     /* عدّلها إذا بدك نسبة مختلفة */
-  object-fit: contain;      /* إظهار الصورة كاملة بلا قصّ */
-  background: rgba(0,0,0,0.04); /* خلفية خفيفة للفراغات الجانبية */
-  border-radius: 10px;
   display: block;
-  flex: 0 0 auto;
-  margin: 0;                /* أزل الهوامش غير الضرورية */
+  max-width: 100%;   /* يخليها تاخد عرض الكارد تقريباً */
+  height: auto;
+  border-radius: 8px;
+  object-fit: contain; /* أو cover لو بدك اقتصاص */
 }
+
 
 /* النص: يتمرّر داخليًا عند الزيادة */
 #popup-content {

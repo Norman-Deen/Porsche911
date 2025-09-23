@@ -15,21 +15,7 @@ const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
 loader.setDRACOLoader(dracoLoader);
 
-loader.load('./src/assets/3d/scene-draco.glb', (gltf) => {
-  const car = gltf.scene;
-  scene.add(car);
 
-
-
-  // تفعيل الظلال للميشات
-  gltf.scene.traverse((child) => {
-    if (child.isMesh) {
-      child.castShadow = true;
-      child.receiveShadow = true;
-      child.material.needsUpdate = true;
-    }
-  });
-});
 
 
 new RGBELoader().load("./src/MR_INT-005_WhiteNeons_NAD.hdr", (hdr) => {
@@ -138,7 +124,7 @@ function animate() {
   orbitControls.update();
   renderer.render(scene, camera1);
   requestAnimationFrame(animate);
-  renderer.setClearAlpha(0); // يترك خلفية الصفحة (CSS) تظهر
+ 
 
   // حدّث كل الـ pulse points
   for (const item of pulseEls) {
@@ -148,6 +134,8 @@ function animate() {
 
 animate();
 
+
+ renderer.setClearAlpha(0); // يترك خلفية الصفحة (CSS) تظهر
 
 // اجعل المشهد يعيد التحجيم تلقائياً عند تغيير حجم النافذة
 window.addEventListener('resize', () => {
@@ -171,27 +159,37 @@ window.addEventListener('resize', () => {
 
 
 
-// -------- Popup JS (updated) --------
 
-// -------- Popup JS (updated with image) --------
+// -------- Popup JS (final) --------
 
-// الصورة المشتركة لكل البوب-أب
+// صورة افتراضية واحدة
 const DEFAULT_IMAGE = "./src/assets/img/911ClassicGreen.JPG";
 
-// بيانات النصوص لكل نقطة
+// نصوص + صور كل نقطة
 const POINTS_DATA = {
   'pulse-point1': {
-    text: "Front trunk (Frunk): lightweight storage improving weight distribution."
+    text: `1975 Porsche 911: Part of the G-Series with iconic impact bumpers. 
+Powered by 2.7L flat-six engines (150–175 hp), or up to 210 hp in the Carrera 2.7.
+First year of the legendary 911 Turbo (930) with 260 hp.`,
+    image: './src/assets/img/911ClassicGreen.JPG'          // ← صورة عامة
   },
+
   'pulse-point2': {
-    text: "Iconic round headlamps: a 911 signature since the 1960s."
+    text: `1975 Porsche 911 engine: 2.7-liter air-cooled flat-six,
+producing around 165–175 hp in standard models, and up to 210 hp in the Carrera 2.7.
+Equipped with Bosch K-Jetronic fuel injection and paired with a 5-speed manual gearbox.`,
+    image: './src/assets/img/911ClassicGreenEngine.jpg'        // ← صورة المحرك
   },
+
   'pulse-point3': {
-    text: "Rear-engine layout: exceptional traction and unique handling balance."
+    text: `The Porsche logo, introduced in 1952, combines Stuttgart’s horse
+emblem with Württemberg’s state crest. It symbolizes the brand’s German roots and racing spirit.`,
+    image: './src/assets/img/911ClassicGreenLogo.jpg'      // ← صورة الشعار
   }
 };
 
-// fallback عبارات عامة
+
+// fallback
 const facts = [
   "The Porsche 911 is renowned for its rear-engine layout.",
   "First introduced in 1964, the 911 became an icon of performance.",
@@ -207,54 +205,109 @@ const popupContent = document.getElementById('popup-content');
 const popupImage = document.getElementById('popup-image');
 const closeBtn = popup.querySelector('.close-btn');
 
-// إظهار البوب-أب عند (x,y)
-function showPopupAt(x, y, data) {
-  const text = data?.text || randomFact();
+// مساعد: انتظر فريم رسم واحد
+const nextFrame = () => new Promise(r => requestAnimationFrame(r));
 
+// إظهار البوب-أب عند (x,y) بدون قفزة
+// clamp مساعد
+const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+// إظهار البوب-أب متموضع مسبقًا بدون أي قفزة/تصحيح بصري
+async function showPopupAt(x, y, data) {
+  const text = data?.text ?? randomFact();
   popupContent.textContent = text;
 
+  // --- (A) جهّز الصورة أولاً ---
   if (popupImage) {
-    popupImage.src = "./src/assets/img/911ClassicGreen.JPG"; // نفس الصورة للجميع
+    const imgSrc = data?.image || DEFAULT_IMAGE;
+    const srcChanged = popupImage.getAttribute('src') !== imgSrc;
+
     popupImage.style.display = 'block';
+    // ثبّت الحجم لتفادي تغيّر الارتفاع لاحقًا (عدّل القياس حسب تصميمك)
+    popupImage.style.maxWidth = 'auto';
+    popupImage.style.height = 'auto';
+    popupImage.loading = 'eager';
+    popupImage.decoding = 'sync';
+
+    if (srcChanged) popupImage.src = imgSrc;
+
+    // انتظر جاهزية الصورة إن كانت تغيّرت
+    try {
+      if (srcChanged && popupImage.decode) await popupImage.decode();
+    } catch (_) { /* تجاهل */ }
   }
 
-  // أظهر مؤقتًا لحساب الأبعاد بدقة
+  // --- (B) حضّر للقياس بدون ظهور/انتقالات ---
+  const prevTransition = popup.style.transition;
+  popup.style.transition = 'none';
+  popup.style.visibility = 'hidden';
+  popup.style.pointerEvents = 'none';
   popup.style.display = 'flex';
-  popup.style.transform = 'translate(-50%, -100%)';
+  popup.style.left = '-99999px';
+  popup.style.top  = '-99999px';
+  popup.style.transform = 'none';
+  popup.removeAttribute('data-placement');
+  popup.style.setProperty('--arrow-x', '50%');
 
-  // ضبط موقع مبدئي فوق النقطة
-  let top = y - 16;
-  let leftCenter = x;
-
-  // احسب أبعاد الصندوق
+  // فريم للمتصفح ليحسِب الأبعاد
+  await new Promise(r => requestAnimationFrame(r));
   let rect = popup.getBoundingClientRect();
   const margin = 12;
 
-  // Clamp أفقي
-  let left = Math.min(
-    Math.max(leftCenter - rect.width / 2, margin),
-    window.innerWidth - rect.width - margin
-  );
-  leftCenter = left + rect.width / 2;
+  // --- (C) حدّد الاتجاه مبدئيًا استنادًا لارتفاع فعلي بعد الصورة ---
+  const placeBottom = (y - (rect.height + 16) < margin);
+  popup.dataset.placement = placeBottom ? 'bottom' : 'top';
 
-  // لو خرج للأعلى → نزّله تحت النقطة
-  if (rect.height + 24 > y || (top - rect.height) < margin) {
-    top = y + 20;
-    popup.style.transform = 'translate(-50%, 0%)';
-  }
-
-  // لو نازل زيادة لتحت → ارفع للأعلى بقدر الممكن
+  // ملاحظة مهمة: تغيير data-placement قد يغيّر حدود/سهم الكارد → أعد القياس
+  await new Promise(r => requestAnimationFrame(r));
   rect = popup.getBoundingClientRect();
-  const maxTop = window.innerHeight - rect.height - margin;
-  if (top > maxTop) top = Math.max(margin, maxTop);
 
+  // --- (D) احسب الإحداثيات النهائية (كلَمب كامل) ---
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+  // X مركز مكلَمب
+  const idealLeft = x - rect.width / 2;
+  const clampedLeft = clamp(idealLeft, margin, window.innerWidth - rect.width - margin);
+  const leftCenter = Math.round(clampedLeft + rect.width / 2);
+
+  // السهم يتبع النقطة حتى لو انضغطنا عند الحافة
+  const arrowPercent = clamp(((x - clampedLeft) / rect.width) * 100, 8, 92);
+  popup.style.setProperty('--arrow-x', `${arrowPercent}%`);
+
+  // Y نهائي
+  let top = placeBottom ? (y + 20) : (y - 16);
+  if (placeBottom) {
+    const maxTop = window.innerHeight - rect.height - margin;
+    top = clamp(top, margin, maxTop);
+  } else {
+    top = Math.max(top, rect.height + margin);
+  }
+  top = Math.round(top);
+
+  // --- (E) ثبّت الموضع النهائي ثم اظهر فورًا بدون أي تصحيح لاحق ---
   popup.style.left = `${leftCenter}px`;
   popup.style.top  = `${top}px`;
+  popup.style.transform = placeBottom ? 'translate(-50%, 0%)' : 'translate(-50%, -100%)';
+  popup.style.setProperty('--origin-y', placeBottom ? '0%' : '100%');
+
+  // reflow ثم اظهر
+  void popup.offsetWidth;
+  popup.style.visibility = 'visible';
+  popup.style.pointerEvents = '';
+  popup.style.transition = prevTransition || '';
 }
 
-// إغلاق
-function hidePopup() { popup.style.display = 'none'; }
 
+
+
+
+// إغلاق
+function hidePopup() {
+  popup.style.display = 'none';
+  popup.style.visibility = ''; // reset
+}
+
+// زر الإغلاق
 if (closeBtn) {
   closeBtn.addEventListener('click', (e) => { e.stopPropagation(); hidePopup(); });
 }
@@ -264,16 +317,17 @@ pulseEls.forEach(({ el }) => {
   el.addEventListener('click', (e) => {
     e.stopPropagation();
     const r = el.getBoundingClientRect();
-    const x = r.left + r.width / 2;
-    const y = r.top;
+    const x = r.left + r.width  / 2;
+    const y = r.top  + r.height / 2;   // ← بدل r.top فقط
     const data = POINTS_DATA[el.id] || null;
     showPopupAt(x, y, data);
   });
 });
 
+
 // إغلاق عند الضغط خارج
 document.addEventListener('click', (e) => {
-  if (popup.style.display === 'block' && !popup.contains(e.target)) hidePopup();
+  if (popup.style.display !== 'none' && !popup.contains(e.target)) hidePopup();
 });
 
 // إغلاق عند ESC
