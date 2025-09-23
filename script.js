@@ -9,8 +9,29 @@ import { RGBELoader } from './three/examples/jsm/loaders/RGBELoader.js';
 const scene = new THREE.Scene();
 window.scene = scene;
 
+
+
+
 // ---- DRACO ----
-const loader = new GLTFLoader();
+const loadingScreen = document.getElementById('loading-screen');
+const loadingText = document.getElementById('loading-text');
+
+const manager = new THREE.LoadingManager(
+  () => {
+    // عند الانتهاء
+    loadingScreen.style.display = 'none';
+  },
+  (url, loaded, total) => {
+    // أثناء التحميل
+    const percent = Math.round((loaded / total) * 100);
+    loadingText.textContent = percent + "%";
+  }
+);
+
+const loader = new GLTFLoader(manager);
+
+
+
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
 loader.setDRACOLoader(dracoLoader);
@@ -25,6 +46,7 @@ new RGBELoader().load("./src/MR_INT-005_WhiteNeons_NAD.hdr", (hdr) => {
   // بعدين حمّل الموديل
   loader.load('./src/assets/3d/scene-draco.glb', (gltf) => {
     const car = gltf.scene;
+      car.position.y -= 0.09;
     scene.add(car);
 
     gltf.scene.traverse((child) => {

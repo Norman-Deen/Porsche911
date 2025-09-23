@@ -4,6 +4,37 @@
     background-color: rgb(178, 178, 178);
 }
 
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;  /* مؤقت */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+#loading-screen img {
+  max-width: 100vh;  /* أو أي مقاس يناسبك */
+  position: relative;
+}
+
+#loading-text {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #000;
+  font-size: 26px;
+  font-weight: 500;
+  background: transparent;
+  font-family: 'Orbitron', sans-serif; /* 🔥 خط أقرب لستايل Porsche */
+}
+
+
+
+
+
 .canvas{
     position: fixed;
     left: 0;
