@@ -2,7 +2,8 @@ import * as THREE from './three/build/three.module.js';
 import gsap from "https://cdn.skypack.dev/gsap";
 
 
-let bgm, audioListener;
+
+
 
 
 
@@ -34,14 +35,16 @@ const CUT2_END = {
   target:{x:-0.6880367468319307,y:0.37098565223109997,z:1.482800504290591}
 };
 
- const CUT4_START = {
-  pos:{ x: 1.2, y: 1.8, z: -3.5 },
-  target:{ x: 0, y: 0.5, z: 0 }
+const CUT4_START = {
+  pos:{ x: -1.1597256582427025, y: 4.174415311431447, z: -1.7809393054842053 },
+  target:{ x: 0.46655885284059995, y: 0.5056061216287363, z: -0.027539210221630615 }
 };
- const CUT4_END = {
-  pos:{ x: 2.1, y: 0.9, z: -2.2 },
-  target:{ x: 0, y: 0.5, z: 0 }
+
+const CUT4_END = {
+  pos:{ x: 1.654070096269885, y: 4.503867654846975, z: -1.3628653258031198 },
+  target:{ x: 0.4665588528405999, y: 0.5056061216287363, z: -0.027539210221630615 }
 };
+
 
 const MAIN_CAM = {
   pos:    { x: 5.1, y: 4.6, z: 7.2 },
@@ -257,13 +260,84 @@ master.add( fadeCut({
 
 
 
+
 // Sound
 const startBtn = document.getElementById("startAnimBtn");
-const audio = new Audio("./src/assets/audio/the-last-point-beat-electronic-digital-394291.mp3");
-audio.loop = true;  // لو بدك تظل تعيد
-audio.volume = 0.6; // مستوى الصوت
+const audio = new Audio("./src/assets/audio/the-last-point-beat-electronic-digital-394291.mp3"); // 🎵 موسيقى خلفية
+audio.loop = true;
+audio.volume = 0.6;
 
-startBtn.addEventListener("click", () => {
+// مؤثر المحرك 🏎️
+const engineSfx = new Audio("./src/assets/audio/car-engine-372477.mp3");
+engineSfx.preload = "auto";
+engineSfx.volume = 0.7;
+engineSfx.loop = false;
+
+let engineTimer = null;
+
+startBtn.addEventListener("click", async () => {
+  // شغّل الموسيقى
   audio.play();
-  playCameraMove(camera, orbitControls, {});
+
+  // شغّل الأنيميشن
+  const tl = playCameraMove(camera, orbitControls, {});
+
+  // تشغيل أولي للمحرك (لتجاوز سياسة المتصفح)
+  try { await engineSfx.play(); } catch(_) {}
+  engineSfx.pause();
+  engineSfx.currentTime = 0;
+
+  // كرر صوت المحرك كل 6 ثواني
+  if (engineTimer) clearInterval(engineTimer);
+  engineTimer = setInterval(() => {
+    engineSfx.currentTime = 0;
+    engineSfx.play();
+
+    // shakeCamera(camera, intensity, duration, frequency)
+    shakeCamera(camera, 0.002, 0.5, 20);
+
+  }, 6000);
+
+  // عند نهاية الأنيميشن أوقف الصوت المتكرر
+  tl.eventCallback("onComplete", () => {
+    clearInterval(engineTimer);
+    engineTimer = null;
+    engineSfx.pause();
+  });
 });
+
+// زر ميوت 🔇
+const muteBtn = document.getElementById("muteBtn");
+muteBtn.addEventListener("click", () => {
+  const newMuted = !audio.muted;
+  audio.muted = newMuted;
+  engineSfx.muted = newMuted; // كتم صوت المحرك كمان
+  muteBtn.textContent = newMuted ? "🔇" : "🔊";
+});
+
+
+//shakeCamera
+function shakeCamera(camera, intensity = 0.05, duration = 0.5, frequency = 25) {
+  let elapsed = 0;
+  const step = 1000 / 60; // ~60fps
+
+  const interval = setInterval(() => {
+    elapsed += step / 1000;
+    const t = elapsed * frequency;
+
+    // خذ الوضع الحالي من الكاميرا مباشرة
+    const baseX = camera.position.x;
+    const baseY = camera.position.y;
+    const baseZ = camera.position.z;
+
+    const offsetX = Math.sin(t * 2) * intensity;
+    const offsetY = Math.cos(t * 3) * intensity * 0.5;
+
+    camera.position.set(baseX + offsetX, baseY + offsetY, baseZ);
+
+    if (elapsed >= duration) {
+      clearInterval(interval);
+      // ما نرجّعش لـbase ثابت، نترك الكاميرا حيث وصلت بالأنيميشن
+    }
+  }, step);
+}
