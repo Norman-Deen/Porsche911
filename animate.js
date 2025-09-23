@@ -1,6 +1,11 @@
 import * as THREE from './three/build/three.module.js';
 import gsap from "https://cdn.skypack.dev/gsap";
 
+
+let bgm, audioListener;
+
+
+
 /* ===== إحداثيات اللقطات ===== */
 const CUT1_START = {
   pos:{x:0.7420866978954554,y:3.508718714652253,z:3.3472833556694024},
@@ -232,3 +237,33 @@ master.add( fadeCut({
 
   return master;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Sound
+const startBtn = document.getElementById("startAnimBtn");
+const audio = new Audio("./src/assets/audio/the-last-point-beat-electronic-digital-394291.mp3");
+audio.loop = true;  // لو بدك تظل تعيد
+audio.volume = 0.6; // مستوى الصوت
+
+startBtn.addEventListener("click", () => {
+  audio.play();
+  playCameraMove(camera, orbitControls, {});
+});

@@ -66,7 +66,7 @@ new RGBELoader().load("./src/MR_INT-005_WhiteNeons_NAD.hdr", (hdr) => {
 
 //animate.js
 document.getElementById("startAnimBtn").addEventListener("click", () => {
-  playCameraMove(camera1, orbitControls);
+  playCameraMove(camera, orbitControls);
 });
 
 
@@ -95,11 +95,11 @@ scene.add(pointMesh3);
 
 // إعداد الكاميرا
 const aspect1 = { width: window.innerWidth, height: window.innerHeight };
-const camera1 = new THREE.PerspectiveCamera(30, aspect1.width / aspect1.height, 0.1, 1000);
-camera1.position.set(5.1, 4.6, 7.2);
+const camera = new THREE.PerspectiveCamera(30, aspect1.width / aspect1.height, 0.1, 1000);
+camera.position.set(5.1, 4.6, 7.2);
 
-scene.add(camera1);
-window.camera1 = camera1; // ⬅️ هيك الكاميرا كمان متاحة
+scene.add(camera);
+window.camera = camera; // ⬅️ هيك الكاميرا كمان متاحة
 
 // Renderer
 const canvas = document.querySelector(".canvas");
@@ -113,7 +113,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 4;
 
 // OrbitControls
-const orbitControls = new OrbitControls(camera1, renderer.domElement);
+const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.enableDamping = true;
 window.orbitControls = orbitControls; // ⬅️ هيك  كمان متاحة
 
@@ -136,7 +136,7 @@ function updatePulseFor(el, mesh) {
   if (!el || !mesh) return;
 
   // تحويل إحداثيات الكرة 3D إلى 2D
-  const vector = mesh.getWorldPosition(new THREE.Vector3()).project(camera1);
+  const vector = mesh.getWorldPosition(new THREE.Vector3()).project(camera);
 
   // vector.x/y in NDC (-1..1)
   const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
@@ -156,7 +156,7 @@ function updatePulseFor(el, mesh) {
 // Loop
 function animate() {
   orbitControls.update();
-  renderer.render(scene, camera1);
+  renderer.render(scene, camera);
   requestAnimationFrame(animate);
  
 
@@ -176,8 +176,8 @@ animate();
 // اجعل المشهد يعيد التحجيم تلقائياً عند تغيير حجم النافذة
 window.addEventListener('resize', () => {
   // حدّث أبعاد الكاميرا
-  camera1.aspect = window.innerWidth / window.innerHeight;
-  camera1.updateProjectionMatrix();
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 
   // حدّث أبعاد الـ renderer
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -191,9 +191,9 @@ window.addEventListener('resize', () => {
 function logCameraInfo() {
   console.log("Keyframe:", {
     pos: {
-      x: camera1.position.x,
-      y: camera1.position.y,
-      z: camera1.position.z
+      x: camera.position.x,
+      y: camera.position.y,
+      z: camera.position.z
     },
     target: {
       x: orbitControls.target.x,
