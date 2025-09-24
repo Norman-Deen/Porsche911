@@ -259,7 +259,9 @@ const stopAll = (cam, ctr) => {
   currentCamTL?.kill(); currentCamTL = null;
   gsap.killTweensOf([cam.position, ctr?.target]);
   if (window.engineTimer) { clearInterval(window.engineTimer); window.engineTimer = null; }
+  if (ctr) { ctr.enabled = true; }               // ✅ رجّع التفعيل
 };
+
 
 // مسار الكاميرا (أبقِ القيم كما هي)
 const FRAMES = [
@@ -298,11 +300,16 @@ export function playDemoCamera(camera, controls, { ease="sine.inOut", seg=4 } = 
 
   const intro = fadeCut({ color:"#000", inDur:0, hold:0.1, outDur:0.7 });
 
-  const tl = gsap.timeline({
-    repeat:-1, paused:true, defaults:{ ease },
-    onUpdate: () => controls?.update(),
-    onKill: () => { isDemoRunning = false; if (controls) controls.enableDamping = hadDamping; }
-  });
+const tl = gsap.timeline({
+  repeat:-1, paused:true, defaults:{ ease },
+  onUpdate: () => controls?.update(),
+  onKill: () => {
+    isDemoRunning = false;
+    if (controls) { controls.enabled = true; }   // ✅
+    if (controls) controls.enableDamping = hadDamping;
+  }
+});
+
 
   for (let i=0; i<FRAMES.length-1; i++) {
     const b = FRAMES[i+1];
@@ -317,23 +324,63 @@ export function playDemoCamera(camera, controls, { ease="sine.inOut", seg=4 } = 
   return tl;
 }
 
-export function endDemo(camera, controls, { color="#000", inDur=0.7 } = {}) {
-  if (!isDemoRunning) return;
+
+
+//
+export function endDemo(camera, controls, { color="#000", inDur=0.4, outDur=0.4 } = {}) {
+  // أوقف الديمو فورًا
+  if (currentCamTL && typeof currentCamTL.kill === "function") {
+    currentCamTL.kill();
+    currentCamTL = null;
+  }
+
   const el = ensureFadeLayer(); el.style.background = color;
-  gsap.to(el, { duration:inDur, opacity:1, ease:"sine.inOut", onComplete: () => stopAll(camera, controls) });
+
+  gsap.timeline()
+    .to(el, { duration: inDur, opacity: 1, ease: "sine.inOut" })
+    .add(() => {
+      // ارجع للكاميرا الأساسية + فعّل الكنترولز الآن
+      camera.position.set(MAIN_CAM.pos.x, MAIN_CAM.pos.y, MAIN_CAM.pos.z);
+      if (controls) {
+        controls.target.set(MAIN_CAM.target.x, MAIN_CAM.target.y, MAIN_CAM.target.z);
+        controls.enabled = true;          // ✅ لا نستخدم hadEnabled
+        controls.enableDamping = true;    // (اختياري) رجّع الـdamping
+        controls.update();
+      } else {
+        camera.lookAt(MAIN_CAM.target.x, MAIN_CAM.target.y, MAIN_CAM.target.z);
+      }
+    })
+    .to(el, { duration: outDur, opacity: 0, ease: "sine.inOut" });
 }
 
+
+
+
+
+
+
+
 // زر بسيط (اختياري)
-let demoBtn = document.getElementById("demoBtn");
-if (!demoBtn) {
-  demoBtn = Object.assign(document.body.appendChild(document.createElement("button")), {
-    id:"demoBtn", textContent:"demo", style:"position:fixed;left:12px;bottom:12px;z-index:9999"
-  });
+// --- Demo toggle ---
+const demoBtn = document.getElementById("demoBtn");
+let isDemoPlaying = false;
+
+function cleanupDemo() {
+  isDemoPlaying = false;
+  demoBtn.textContent = "Demo";
 }
-demoBtn.onclick = () => {
-  const cam = window.camera || camera, ctr = window.orbitControls || window.controls;
-  playDemoCamera(cam, ctr, { ease:"sine.inOut", seg:4 });
-};
+
+demoBtn.addEventListener("click", () => {
+  const cam = window.camera, ctr = window.orbitControls;
+  if (!isDemoPlaying) {
+    playDemoCamera(cam, ctr, { ease: "sine.inOut", seg: 4 });
+    isDemoPlaying = true;
+    demoBtn.textContent = "Stop Demo";
+  } else {
+    endDemo(cam, ctr);
+    cleanupDemo();
+  }
+});
 
 
 

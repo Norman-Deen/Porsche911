@@ -290,10 +290,6 @@ window.logCameraInfo = logCameraInfo;
 
 
 ///////////////////////////////////////////
-const demoBtn = document.getElementById("demoBtn");
-demoBtn.addEventListener("click", () => {
-  playDemoCamera(camera, orbitControls);
-});
 
 
 
