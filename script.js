@@ -20,18 +20,46 @@ const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
 
 
-//LoadingManager
+// ---- Smooth Loader (start immediately) ----
+let disp = 0, target = 0, rafId = null;
+const lerp = (a,b,t)=>a+(b-a)*t;
+
+function tick() {
+  // انجراف بسيط لحد 85% لو ما في أحداث تحميل لسه
+  if (target < 85) target += 0.25; // ≈25% كل 10 ثواني
+  disp = lerp(disp, target, 0.12);
+  const shown = Math.min(99, Math.floor(disp));
+  loadingText.textContent = shown + "%";
+  rafId = requestAnimationFrame(tick);
+}
+
+// ابدأ العداد مباشرة
+rafId = requestAnimationFrame(tick);
+// -------------------------------------------
+
+
+// LoadingManager
 const manager = new THREE.LoadingManager(
-  () => {
-    loadingText.style.display = 'none';           // أخفِ النسبة
-    const startBtn = document.getElementById('startBtn');
-    if (startBtn) startBtn.style.display = 'inline-block';
+  () => { // onLoad
+    target = 100; // خلّص التحميل
+    setTimeout(() => {
+      cancelAnimationFrame(rafId); rafId = null;
+      loadingText.style.display = 'none';
+      const startBtn = document.getElementById('startBtn');
+if (startBtn) {
+  startBtn.style.display = 'inline-block';
+}
+
+    }, 500); // مهلة قصيرة لتجهيز الـGPU/فك الضغط
   },
-  (url, loaded, total) => {
+  (url, loaded, total) => { // onProgress
+    // التقدّم الحقيقي، بس من غير قفزة حادة
     const percent = Math.round((loaded / total) * 100);
-    loadingText.textContent = percent + "%";
+    target = Math.max(target, Math.min(99, percent * 0.98));
   }
 );
+
+
 
 
 const loader = new GLTFLoader(manager);
