@@ -5,7 +5,7 @@ import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from './three/examples/jsm/loaders/DRACOLoader.js';
 import { RGBELoader } from './three/examples/jsm/loaders/RGBELoader.js';
 
-import { playCameraMove } from './animate.js';
+import { playCameraMove,playDemoCamera  } from './animate.js';
 
 
 // إنشاء مشهد
@@ -19,19 +19,23 @@ window.scene = scene;
 const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
 
+
+//
 const manager = new THREE.LoadingManager(
   () => {
-    // عند الانتهاء
-    loadingScreen.style.display = 'none';
+    loadingText.style.display = 'none';           // أخفِ النسبة
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) startBtn.style.display = 'inline-block';
   },
   (url, loaded, total) => {
-    // أثناء التحميل
     const percent = Math.round((loaded / total) * 100);
     loadingText.textContent = percent + "%";
   }
 );
 
+
 const loader = new GLTFLoader(manager);
+
 
 
 
@@ -289,6 +293,11 @@ window.logCameraInfo = logCameraInfo;
 
 
 
+///////////////////////////////////////////
+const demoBtn = document.getElementById("demoBtn");
+demoBtn.addEventListener("click", () => {
+  playDemoCamera(camera, orbitControls);
+});
 
 
 
@@ -468,3 +477,25 @@ document.addEventListener('click', (e) => {
 window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopup(); });
 
 // -------- /Popup JS --------
+
+
+
+
+
+
+
+
+
+
+
+//btn
+//startBtn
+
+const startBtn = document.getElementById("startBtn");
+if (startBtn) {
+  startBtn.addEventListener("click", () => {
+    loadingScreen.style.display = "none";
+    // شغّل نفس منطق زر Start Animation (صوت + playCameraMove)
+    document.getElementById("startAnimBtn")?.click();
+  });
+}
