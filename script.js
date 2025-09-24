@@ -242,14 +242,18 @@ renderer.toneMappingExposure = 4;
 
 // OrbitControls
 const orbitControls = new OrbitControls(camera, renderer.domElement);
+orbitControls.minDistance = 4;   // أقرب مسافة للكاميرا من السيارة
+orbitControls.maxDistance = 20;  // أبعد مسافة للكاميرا
+
 orbitControls.enableDamping = true;
 window.orbitControls = orbitControls; // ⬅️ هيك  كمان متاحة
 
 
 // Grid
-const gridMain = new THREE.GridHelper();
-scene.add(gridMain);
+const gridMain = new THREE.GridHelper(10, 10, 0x888888, 0x888888);  //(size, divisions, color1, color2);
+//scene.add(gridMain);
 //scene.fog = new THREE.FogExp2(0xaaaaaa, 0.04);
+
 
 
 // ربط عناصر الـ HTML
