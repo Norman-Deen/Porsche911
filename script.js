@@ -5,7 +5,7 @@ import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from './three/examples/jsm/loaders/DRACOLoader.js';
 import { RGBELoader } from './three/examples/jsm/loaders/RGBELoader.js';
 
-import { playCameraMove,playDemoCamera  } from './animate.js';
+import { playCameraMove,playDemoCamera,bootAudio } from './animate.js';
 
 
 // إنشاء مشهد
@@ -151,10 +151,6 @@ resetBtn?.addEventListener('click', () => {
 
 
 
-//animate.js
-document.getElementById("startAnimBtn").addEventListener("click", () => {
-  playCameraMove(camera, orbitControls);
-});
 
 
 
@@ -493,9 +489,9 @@ window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopup();
 
 const startBtn = document.getElementById("startBtn");
 if (startBtn) {
-  startBtn.addEventListener("click", () => {
-    loadingScreen.style.display = "none";
-    // شغّل نفس منطق زر Start Animation (صوت + playCameraMove)
-    document.getElementById("startAnimBtn")?.click();
+  startBtn.addEventListener("click", async () => {
+    await bootAudio();                      // الصوت هنا
+    loadingScreen.style.display = "none";   // أخفِ شاشة التحميل
+    document.getElementById("startAnimBtn")?.click(); // ابدأ الفيلم فورًا
   });
 }

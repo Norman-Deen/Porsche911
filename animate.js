@@ -344,63 +344,88 @@ demoBtn.onclick = () => {
 
 
 
-
 ///////////////////////////////////////////////////////
-// Sound
-const startBtn = document.getElementById("startAnimBtn");
-const audio = new Audio("./src/assets/audio/the-last-point-beat-electronic-digital-394291.mp3"); // 🎵 موسيقى خلفية
-audio.loop = true;
-audio.volume = 0.6;
+// Sound + Start/Skip toggle
+const animBtn = document.getElementById("startAnimBtn");
+const audio = new Audio("./src/assets/audio/the-last-point-beat-electronic-digital-394291.mp3");
+audio.loop = true; audio.volume = 0.6;
 
-// مؤثر المحرك 🏎️
 const engineSfx = new Audio("./src/assets/audio/car-engine-372477.mp3");
-engineSfx.preload = "auto";
-engineSfx.volume = 0.7;
-engineSfx.loop = false;
+engineSfx.preload = "auto"; engineSfx.volume = 0.7; engineSfx.loop = false;
 
-let engineTimer = null;
-
-startBtn.addEventListener("click", async () => {
-  // شغّل الموسيقى
+export async function bootAudio() {
+  // يبدأ الصوت عند زر Start الرئيسي فقط
   audio.play();
-
-  // شغّل الأنيميشن
-  const tl = playCameraMove(camera, orbitControls, {});
-
-  // تشغيل أولي للمحرك (لتجاوز سياسة المتصفح)
   try { await engineSfx.play(); } catch(_) {}
   engineSfx.pause();
   engineSfx.currentTime = 0;
+}
 
-  // كرر صوت المحرك كل 6 ثواني
-  if (engineTimer) clearInterval(engineTimer);
+let engineTimer = null;
+let currentTL = null;
+let isPlaying = false;
+
+function setBtn(label){ animBtn.textContent = label; animBtn.disabled = false; }
+
+function cleanup(){
+  clearInterval(engineTimer); engineTimer = null;
+  engineSfx.pause();
+  currentTL = null; isPlaying = false;
+  if (window.orbitControls) window.orbitControls.enabled = true; // ✅ رجّع الكنترولز
+  setBtn("Intro");
+}
+
+
+async function startRun(){
+  if (isPlaying) return;
+  isPlaying = true;
+  setBtn("Skip");
+
+  // لا تشغيل صوت هنا — الصوت صار في bootAudio() ويُنادى من زر Start الرئيسي
+  currentTL = playCameraMove(camera, orbitControls, {}) || null;
+
+  if (!currentTL || typeof currentTL.kill !== "function") {
+    cleanup();
+    return;
+  }
+
+  // محرك كل 6 ثوانٍ + رجّة
   engineTimer = setInterval(() => {
     engineSfx.currentTime = 0;
     engineSfx.play();
-
-    // shakeCamera(camera, intensity, duration, frequency)
     shakeCamera(camera, 0.002, 0.5, 20);
-
   }, 6000);
 
-  // عند نهاية الأنيميشن أوقف الصوت المتكرر
-  tl.eventCallback("onComplete", () => {
-    clearInterval(engineTimer);
-    engineTimer = null;
-    engineSfx.pause();
-  });
+  currentTL.eventCallback("onComplete", cleanup);
+}
+
+function skipRun(){
+  if (currentTL && typeof currentTL.kill === "function") {
+    try { currentTL.progress(1); currentTL.kill(); } catch(_) {}
+  }
+  cleanup();
+}
+
+animBtn.addEventListener("click", () => {
+  if (!isPlaying) startRun();
+  else skipRun();
 });
 
-// زر ميوت 🔇
+// ميوت 🔇
 const muteBtn = document.getElementById("muteBtn");
 muteBtn.addEventListener("click", () => {
-  const newMuted = !audio.muted;
-  audio.muted = newMuted;
-  engineSfx.muted = newMuted; // كتم صوت المحرك كمان
-  muteBtn.textContent = newMuted ? "🔇" : "🔊";
+  const m = !audio.muted;
+  audio.muted = m; engineSfx.muted = m;
+  muteBtn.textContent = m ? "🔇" : "🔊";
 });
 
 
+
+
+
+
+
+/////////////////////////////////////////
 //shakeCamera
 function shakeCamera(camera, intensity = 0.05, duration = 0.5, frequency = 25) {
   let elapsed = 0;

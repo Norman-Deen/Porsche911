@@ -54,31 +54,94 @@
 }
 
 
-
 .controls {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  top: 20px;
+  right: 20px;
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;          /* ✅ يلف على الشاشات الصغيرة */
+  gap: 8px 10px;
   z-index: 10000;
-  background: transparent; /* مهم */
+  background: transparent;
+  align-items: center;
 }
 
 .controls .btn {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(0,0,0,0.85); /* زر أسود فقط */
+  display: inline-flex;     /* ✅ توحيد المحاذاة العمودية */
+  align-items: center;
+  justify-content: center;
+  height: 34px;             /* ✅ نفس ارتفاع المنتقي */
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  background: rgba(0,0,0,0.75);
   color: #fff;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .1s ease, background .15s ease, border-color .15s ease;
+  backdrop-filter: blur(6px);
+}
+.controls .btn:hover,
+.color-picker:hover {
+  background: rgba(118, 118, 118, 0.9);   /* ✅ غامق أنيق بدل الرمادي الفاتح */
+  border-color: rgba(255,255,255,0.35);
+  transform: translateY(-1px);
+}
+
+
+.controls .btn:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.45);
+  outline-offset: 2px;
+}
+
+
+
+/* Label تبع اللون */
+.color-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  height: 34px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.color-picker input[type="color"] {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.color-picker input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.color-picker input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+/* زر Reset داخل الزر */
+.color-picker .reset-inside {
+  margin-left: 6px;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 12px;
   cursor: pointer;
   transition: background 0.2s;
 }
-
-.controls .btn:hover {
-  background: rgba(255,255,255,0.25);
+.color-picker .reset-inside:hover {
+  background: rgba(255,255,255,0.3);
 }
+
 
 
 
