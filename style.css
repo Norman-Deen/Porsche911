@@ -1,8 +1,8 @@
-*{
-    margin: 0;
-    padding:0;
-    background-color: rgb(178, 178, 178);
-}
+*{ margin:0; padding:0; }
+body{ background-color: rgb(178,178,178); }
+
+
+
 
 #loading-screen {
   position: fixed;
@@ -171,27 +171,29 @@ body.intro-mode .controls .btn:not(#startAnimBtn) {
 }
 
 .pulse {
-  position: fixed;   /* بدل fixed */
-  width: 20px;
-  height: 20px;
-  background-color: aqua;
-  border-radius: 50%;
-  animation: pulse 1s infinite alternate;
+  position: fixed;
   transform: translate(-50%, -50%);
   z-index: 999;
   display: none;
   cursor: pointer;
+  background: transparent;
+}
+
+.pulse img {
+  width: 28px;   /* حجم الأيقونة */
+  height: 28px;
+  display: block;
+  animation: pulse 1s infinite alternate;
 }
 
 
 @keyframes pulse {
-  from { transform: translate(-50%, -50%) scale(1); }
-  to   { transform: translate(-50%, -50%) scale(1.5); }
+  from { transform: scale(1); }
+  to   { transform: scale(1.3); }
 }
 
-
 body.ui-hide-pulses .pulse { display: none !important; }
-body.ui-hide-pulses { overflow: hidden; }
+
 
 
 
