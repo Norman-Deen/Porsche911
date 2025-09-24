@@ -287,8 +287,16 @@ const FRAMES = [
 ];
 FRAMES.push(JSON.parse(JSON.stringify(FRAMES[0]))); // إغلاق حلقي
 
+
+
+
+//playDemoCamera
 export function playDemoCamera(camera, controls, { ease="sine.inOut", seg=4 } = {}) {
   stopAll(camera, controls); isDemoRunning = true;
+  document.body.classList.add('ui-hide-pulses');
+  document.body.classList.add('demo-mode');   // ← اخفِ كل الأزرار ما عدا demoBtn
+
+
 
   const hadDamping = controls?.enableDamping;
   if (controls) { controls.enabled = false; controls.enableDamping = false; }
@@ -307,6 +315,9 @@ const tl = gsap.timeline({
     isDemoRunning = false;
     if (controls) { controls.enabled = true; }   // ✅
     if (controls) controls.enableDamping = hadDamping;
+
+     document.body.classList.remove('demo-mode');     // ← رجّع الأزرار
+  document.body.classList.remove('ui-hide-pulses'); // (اختياري) رجّع الـ pulses
   }
 });
 
@@ -326,7 +337,7 @@ const tl = gsap.timeline({
 
 
 
-//
+// endDemo
 export function endDemo(camera, controls, { color="#000", inDur=0.4, outDur=0.4 } = {}) {
   // أوقف الديمو فورًا
   if (currentCamTL && typeof currentCamTL.kill === "function") {
@@ -334,7 +345,8 @@ export function endDemo(camera, controls, { color="#000", inDur=0.4, outDur=0.4 
     currentCamTL = null;
   }
 
-  const el = ensureFadeLayer(); el.style.background = color;
+  const el = ensureFadeLayer(); 
+  el.style.background = color;
 
   gsap.timeline()
     .to(el, { duration: inDur, opacity: 1, ease: "sine.inOut" })
@@ -350,7 +362,11 @@ export function endDemo(camera, controls, { color="#000", inDur=0.4, outDur=0.4 
         camera.lookAt(MAIN_CAM.target.x, MAIN_CAM.target.y, MAIN_CAM.target.z);
       }
     })
-    .to(el, { duration: outDur, opacity: 0, ease: "sine.inOut" });
+    .to(el, { duration: outDur, opacity: 0, ease: "sine.inOut" })
+    .add(() => {
+      document.body.classList.remove('ui-hide-pulses'); // ✅ رجوع النِّقَاط بعد الديمو
+       document.body.classList.remove('demo-mode');
+    });
 }
 
 
@@ -365,6 +381,8 @@ export function endDemo(camera, controls, { color="#000", inDur=0.4, outDur=0.4 
 const demoBtn = document.getElementById("demoBtn");
 let isDemoPlaying = false;
 
+
+//cleanupDemo
 function cleanupDemo() {
   isDemoPlaying = false;
   demoBtn.textContent = "Demo";
@@ -414,19 +432,28 @@ let isPlaying = false;
 
 function setBtn(label){ animBtn.textContent = label; animBtn.disabled = false; }
 
+
+//cleanup
 function cleanup(){
   clearInterval(engineTimer); engineTimer = null;
   engineSfx.pause();
   currentTL = null; isPlaying = false;
   if (window.orbitControls) window.orbitControls.enabled = true; // ✅ رجّع الكنترولز
+  document.body.classList.remove('ui-hide-pulses');
+  document.body.classList.remove('intro-mode');
+
   setBtn("Intro");
 }
 
-
+//
 async function startRun(){
   if (isPlaying) return;
   isPlaying = true;
   setBtn("Skip");
+  document.body.classList.add('ui-hide-pulses');
+  document.body.classList.add('intro-mode');
+
+
 
   // لا تشغيل صوت هنا — الصوت صار في bootAudio() ويُنادى من زر Start الرئيسي
   currentTL = playCameraMove(camera, orbitControls, {}) || null;
@@ -446,12 +473,16 @@ async function startRun(){
   currentTL.eventCallback("onComplete", cleanup);
 }
 
+
+// skipRun
 function skipRun(){
   if (currentTL && typeof currentTL.kill === "function") {
     try { currentTL.progress(1); currentTL.kill(); } catch(_) {}
   }
+  document.body.classList.remove('intro-mode'); // ← رجّع الأزرار
   cleanup();
 }
+
 
 animBtn.addEventListener("click", () => {
   if (!isPlaying) startRun();

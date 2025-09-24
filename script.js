@@ -8,11 +8,39 @@ import { RGBELoader } from './three/examples/jsm/loaders/RGBELoader.js';
 import { playCameraMove,playDemoCamera,bootAudio } from './animate.js';
 
 
-// إنشاء مشهد
+// Create a scene
 const scene = new THREE.Scene();
 window.scene = scene;
 
 
+//#region Points 
+
+// Point 1
+const pointGeometry1 = new THREE.SphereGeometry(0.05, 3, 3);
+const pointMaterial1 = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
+const pointMesh1 = new THREE.Mesh(pointGeometry1, pointMaterial1);
+pointMesh1.position.set(1, 1, 1);
+scene.add(pointMesh1);
+
+// Point 2
+const pointGeometry2 = new THREE.SphereGeometry(0.05, 3, 3);
+const pointMaterial2 = new THREE.MeshBasicMaterial({ color: 0xff0000  }); 
+const pointMesh2 = new THREE.Mesh(pointGeometry2, pointMaterial2);
+pointMesh2.position.set(0, 1.2, -2);
+scene.add(pointMesh2);
+
+// Point 3
+const pointGeometry3 = new THREE.SphereGeometry(0.05, 3, 3);
+const pointMaterial3 = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
+const pointMesh3 = new THREE.Mesh(pointGeometry3, pointMaterial3);
+pointMesh3.position.set(0, 0.7, 2.35);
+scene.add(pointMesh3);
+
+pointMesh1.visible = false;
+pointMesh2.visible = false;
+pointMesh3.visible = false;
+
+//#endregion
 
 
 // ---- DRACO ----
@@ -182,26 +210,12 @@ resetBtn?.addEventListener('click', () => {
 
 
 
-// Point 1
-const pointGeometry1 = new THREE.SphereGeometry(0.05, 16, 16);
-const pointMaterial1 = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // أحمر
-const pointMesh1 = new THREE.Mesh(pointGeometry1, pointMaterial1);
-pointMesh1.position.set(1, 1, 1);
-scene.add(pointMesh1);
 
-// Point 2
-const pointGeometry2 = new THREE.SphereGeometry(0.05, 16, 30);
-const pointMaterial2 = new THREE.MeshBasicMaterial({ color: 0xff0000  }); // أحمر
-const pointMesh2 = new THREE.Mesh(pointGeometry2, pointMaterial2);
-pointMesh2.position.set(0, 1.2, -2);
-scene.add(pointMesh2);
 
-// Point 3
-const pointGeometry3 = new THREE.SphereGeometry(0.05, 16, 16);
-const pointMaterial3 = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // أزرق
-const pointMesh3 = new THREE.Mesh(pointGeometry3, pointMaterial3);
-pointMesh3.position.set(0, 0.7, 2.35);
-scene.add(pointMesh3);
+
+
+
+
 
 
 // إعداد الكاميرا

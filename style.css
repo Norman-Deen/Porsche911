@@ -32,7 +32,7 @@
 }
 #startBtn {
   position: absolute;
-  top: 80%;                 /* تحته بشوي من العداد */
+  top: 71%;                 /* تحته بشوي من العداد */
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 12px 24px;
@@ -143,6 +143,13 @@
   background: rgba(255,255,255,0.3);
 }
 
+/* for hide btn*/
+body.demo-mode .controls .btn:not(#demoBtn) {
+  display: none !important;
+}
+body.intro-mode .controls .btn:not(#startAnimBtn) {
+  display: none !important;
+}
 
 
 
@@ -164,7 +171,7 @@
 }
 
 .pulse {
-  position: absolute;   /* بدل fixed */
+  position: fixed;   /* بدل fixed */
   width: 20px;
   height: 20px;
   background-color: aqua;
@@ -183,6 +190,8 @@
 }
 
 
+body.ui-hide-pulses .pulse { display: none !important; }
+body.ui-hide-pulses { overflow: hidden; }
 
 
 
