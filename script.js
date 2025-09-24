@@ -141,6 +141,9 @@ car.traverse((obj) => {
   }
 });
 
+window.paintMats = paintMats;   // ← هيك بتصير متاحة للـ demo
+
+
 // دالة لتعيين اللون مع دعم hex 6 أو 8 خانات
 function setHexWithAlpha(material, hex) {
   if (hex.length === 9) { // #RRGGBBAA

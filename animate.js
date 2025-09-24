@@ -254,13 +254,26 @@ master.add( fadeCut({
 // ===== Demo Camera Loop (one file) =====
 // حالة بسيطة
 let currentCamTL = null, isDemoRunning = false;
+
+
 const stopAll = (cam, ctr) => {
   isDemoRunning = false;
-  currentCamTL?.kill(); currentCamTL = null;
+  currentCamTL?.kill(); 
+  currentCamTL = null;
+
+  // أوقف أي توينات
   gsap.killTweensOf([cam.position, ctr?.target]);
-  if (window.engineTimer) { clearInterval(window.engineTimer); window.engineTimer = null; }
-  if (ctr) { ctr.enabled = true; }               // ✅ رجّع التفعيل
+
+  // نظّف مؤقت المحرك الصحيح
+  if (engineTimer) {
+    clearInterval(engineTimer);
+    engineTimer = null;
+  }
+
+  // رجّع الكنترولز
+  if (ctr) { ctr.enabled = true; }
 };
+
 
 
 // مسار الكاميرا (أبقِ القيم كما هي)
@@ -311,14 +324,19 @@ export function playDemoCamera(camera, controls, { ease="sine.inOut", seg=4 } = 
 const tl = gsap.timeline({
   repeat:-1, paused:true, defaults:{ ease },
   onUpdate: () => controls?.update(),
-  onKill: () => {
-    isDemoRunning = false;
-    if (controls) { controls.enabled = true; }   // ✅
-    if (controls) controls.enableDamping = hadDamping;
-
-     document.body.classList.remove('demo-mode');     // ← رجّع الأزرار
-  document.body.classList.remove('ui-hide-pulses'); // (اختياري) رجّع الـ pulses
+onKill: () => {
+  isDemoRunning = false;
+  clearTimeout(autoPaintTimer); autoPaintTimer = null;
+  if (window.paintMats?.length) {
+    gsap.killTweensOf(window.paintMats.map(m => m.color));
   }
+  if (controls) { controls.enabled = true; }   // ✅
+  if (controls) controls.enableDamping = hadDamping;
+
+  document.body.classList.remove('demo-mode');     // ← رجّع الأزرار
+  document.body.classList.remove('ui-hide-pulses'); // (اختياري) رجّع الـ pulses
+}
+
 });
 
 
@@ -330,9 +348,13 @@ const tl = gsap.timeline({
       : tl.add(() => camera.lookAt(b.target.x, b.target.y, b.target.z), "<");
   }
 
-  intro.eventCallback("onComplete", () => tl.play());
-  currentCamTL = tl;
-  return tl;
+ intro.eventCallback("onComplete", () => {
+  tl.play();
+  autoPaintCycle(window.paintMats);   // ← هون تبدأ دورة الألوان مع بداية الـ Demo
+});
+
+currentCamTL = tl;
+return tl;
 }
 
 
@@ -366,6 +388,9 @@ export function endDemo(camera, controls, { color="#000", inDur=0.4, outDur=0.4 
     .add(() => {
       document.body.classList.remove('ui-hide-pulses'); // ✅ رجوع النِّقَاط بعد الديمو
        document.body.classList.remove('demo-mode');
+       clearTimeout(autoPaintTimer); autoPaintTimer = null;
+if (window.paintMats?.length) gsap.killTweensOf(window.paintMats.map(m => m.color));
+
     });
 }
 
@@ -528,4 +553,55 @@ function shakeCamera(camera, intensity = 0.05, duration = 0.5, frequency = 25) {
       // ما نرجّعش لـbase ثابت، نترك الكاميرا حيث وصلت بالأنيميشن
     }
   }, step);
+}
+
+
+
+
+// === Auto Paint Changer (لـ Demo فقط) ===
+let autoPaintTimer = null;
+
+function autoPaintCycle(materials) {
+  if (!materials?.length || !isDemoRunning) return;
+
+  const darkColors = [
+    "#111111", // أسود غامق
+    "#222831", // رمادي غرافيتي
+    "#2c3e50", // أزرق كربوني
+    "#4b3621", // بني شوكولا غامق
+    "#0d1b2a", // أزرق كحلي داكن
+    "#1b4026", // أخضر غامق
+    "#401b1b"  // أحمر غامق
+  ];
+
+  let i = 0;
+
+  function next() {
+    if (!isDemoRunning) return;  // ← أوقف لو انتهى الديمو
+    const c = new THREE.Color(darkColors[i % darkColors.length]);
+    materials.forEach(m => {
+      gsap.to(m.color, {
+        duration: 6,   // ← الرقم هون يتحكم بسرعة الانتقال (كل ما كبر كان أبطأ)
+        r: c.r,
+        g: c.g,
+        b: c.b,
+        ease: "sine.inOut",
+        overwrite: true,
+        onUpdate: () => { m.needsUpdate = true; }
+      });
+    });
+    i++;
+    autoPaintTimer = setTimeout(next, 6000); // ← بعد 6 ثواني ينتقل للون التالي
+  }
+
+  next();
+}
+
+// للتنظيف عند إيقاف الديمو
+function stopAutoPaint() {
+  clearTimeout(autoPaintTimer);
+  autoPaintTimer = null;
+  if (window.paintMats?.length) {
+    gsap.killTweensOf(window.paintMats.map(m => m.color));
+  }
 }
