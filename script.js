@@ -20,7 +20,7 @@ const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
 
 
-//
+//LoadingManager
 const manager = new THREE.LoadingManager(
   () => {
     loadingText.style.display = 'none';           // أخفِ النسبة
@@ -480,14 +480,17 @@ window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopup();
 
 
 
-//btn
-//startBtn
+/////btn
 
+//startBtn
 const startBtn = document.getElementById("startBtn");
+const controlsDiv = document.querySelector(".controls");
+
 if (startBtn) {
   startBtn.addEventListener("click", async () => {
     await bootAudio();                      // الصوت هنا
     loadingScreen.style.display = "none";   // أخفِ شاشة التحميل
+    controlsDiv.style.display = "flex";     // ← أظهر الأزرار هون فقط
     document.getElementById("startAnimBtn")?.click(); // ابدأ الفيلم فورًا
   });
 }

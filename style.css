@@ -64,6 +64,7 @@
   z-index: 10000;
   background: transparent;
   align-items: center;
+  display: none;
 }
 
 .controls .btn {
