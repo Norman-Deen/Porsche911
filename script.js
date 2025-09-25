@@ -164,6 +164,14 @@ function setHexWithAlpha(material, hex) {
 const colorInput = document.getElementById('paintColor');
 const resetBtn   = document.getElementById('resetPaint');
 
+// ✅ خلي الـ picker يطابق لون السيارة الحالي عند البداية
+if (colorInput && paintMats.length) {
+  const c = paintMats[0].color;
+  const toHex = v => ('0' + Math.round(v * 255).toString(16)).slice(-2);
+  colorInput.value = `#${toHex(c.r)}${toHex(c.g)}${toHex(c.b)}`;
+}
+
+// لما يغيّر المستخدم اللون
 colorInput?.addEventListener('input', () => {
   const hex = colorInput.value; // يعطي #RRGGBB
   paintMats.forEach((m) => {
@@ -177,7 +185,12 @@ colorInput?.addEventListener('input', () => {
   });
 });
 
+
 // زر لإرجاع الألوان الأصلية
+// دالة مساعدة لتحويل Color إلى #RRGGBB
+const toHex2 = v => ('0' + Math.round(v * 255).toString(16)).slice(-2);
+const colorToHex = (c) => `#${toHex2(c.r)}${toHex2(c.g)}${toHex2(c.b)}`;
+
 resetBtn?.addEventListener('click', () => {
   paintMats.forEach((m) => {
     if (m.userData._origColor) m.color.copy(m.userData._origColor);
@@ -189,7 +202,13 @@ resetBtn?.addEventListener('click', () => {
     m.opacity     = m.userData._origOpacity;
     m.needsUpdate = true;
   });
+
+  // ✅ حدّث صندوق اللون ليطابق اللون الأصلي
+  if (colorInput && paintMats[0]?.userData?._origColor) {
+    colorInput.value = colorToHex(paintMats[0].userData._origColor);
+  }
 });
+
 
 
 
