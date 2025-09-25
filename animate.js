@@ -70,6 +70,9 @@ function ensureFadeLayer() {
   return el;
 }
 
+
+
+
 /* ===== تحريك كاميرا (position + target) ===== */
 function tweenCut(camera, controls, START, END, { duration=6, ease="sine.inOut", trim=-2 } = {}) {
   const trimmedDuration = Math.max(0, duration - 2 * trim); // نقص نص ثانية من كل طرف
@@ -280,41 +283,61 @@ const stopAll = (cam, ctr) => {
 
 // مسار الكاميرا (أبقِ القيم كما هي)
 const FRAMES = [
-  {pos:{x:-0.2580,y:11.0196,z:0.2471}, target:{x:-0.2580,y:-0.0057,z:0.2471}},
-  {pos:{x:0.0885,y:11.0087,z:0.2585}, target:{x:-0.2580,y:-0.0057,z:0.2471}},
-  {pos:{x:0.4350,y:10.9978,z:0.2699}, target:{x:-0.2580,y:-0.0057,z:0.2471}},
-  {pos:{x:0.2689,y:10.9925,z:0.6857}, target:{x:-0.0721,y:-0.0059,z:0.2534}},
-  {pos:{x:0.1027,y:10.9871,z:1.1014}, target:{x:0.1138,y:-0.0060,z:0.2596}},
-  {pos:{x:0.1083,y:11.0032,z:0.6805}, target:{x:0.1138,y:-0.0060,z:0.2596}},
-  {pos:{x:0.1138,y:11.0193,z:0.2596}, target:{x:0.1138,y:-0.0060,z:0.2596}},
-  {pos:{x:0.8842,y:10.9928,z:0.3276}, target:{x:0.6123,y:-0.0232,z:0.4987}},
-  {pos:{x:1.6547,y:10.9661,z:0.3956}, target:{x:1.1108,y:-0.0404,z:0.7378}},
-  {pos:{x:3.9193,y:10.1046,z:2.1190}, target:{x:1.1108,y:-0.0404,z:0.7378}},
-  {pos:{x:6.1840,y:9.2430,z:3.8424}, target:{x:1.1109,y:-0.0404,z:0.7378}},
-  {pos:{x:2.2959,y:8.5466,z:5.8954}, target:{x:1.1109,y:-0.0404,z:0.7378}},
-  {pos:{x:-1.5921,y:7.8501,z:7.9483}, target:{x:1.1109,y:-0.0404,z:0.7378}},
-  {pos:{x:-2.7725,y:8.8653,z:4.7601}, target:{x:0.2639,y:-0.3182,z:0.8230}},
-  {pos:{x:-3.9528,y:9.8806,z:1.5720}, target:{x:-0.5830,y:-0.5960,z:0.9081}},
-  {pos:{x:-0.5835,y:10.1543,z:1.2401}, target:{x:-0.5835,y:-0.5962,z:0.9082}},
-  {pos:{x:-0.5835,y:10.4291,z:0.9082}, target:{x:-0.5835,y:-0.5962,z:0.9082}},
-  {pos:{x:-0.4374,y:10.3963,z:0.6828}, target:{x:-0.4374,y:-0.6289,z:0.6828}},
-  {pos:{x:-0.2913,y:10.3636,z:0.4574}, target:{x:-0.2913,y:-0.6616,z:0.4574}},
+  {pos:{x:5.6218,y:8.2005,z:0.5332},target:{x:-0.0729,y:0.0430,z:0.3454}},     // cut1
+  {pos:{x:3.7774,y:9.1366,z:0.4416},target:{x:-0.1346,y:0.0268,z:0.3126}},     // cut2
+  {pos:{x:1.9329,y:10.0726,z:0.3501},target:{x:-0.1963,y:0.0105,z:0.2799}},    // cut3
+  {pos:{x:0.0885,y:11.0087,z:0.2585},target:{x:-0.2580,y:-0.0057,z:0.2471}},   // cut4
+  {pos:{x:0.4350,y:10.9978,z:0.2699},target:{x:-0.2580,y:-0.0057,z:0.2471}},   // cut5
+  {pos:{x:0.2689,y:10.9925,z:0.6857},target:{x:-0.0721,y:-0.0059,z:0.2534}},   // cut6
+  {pos:{x:0.1027,y:10.9871,z:1.1014},target:{x:0.1138,y:-0.0060,z:0.2596}},    // cut7
+  {pos:{x:0.1083,y:11.0032,z:0.6805},target:{x:0.1138,y:-0.0060,z:0.2596}},    // cut8
+  {pos:{x:0.1138,y:11.0193,z:0.2596},target:{x:0.1138,y:-0.0060,z:0.2596}},    // cut9
+
+// cutD
+{pos:{x:0.2938,y:10.5858,z:0.8002}, target:{x:0.3019,y:-0.0180,z:0.2737}},
+
+// cutC
+{pos:{x:1.1114,y:10.5545,z:1.4196}, target:{x:1.1108,y:-0.0404,z:0.7378}},
+
+// cutB
+{pos:{x:1.3883,y:10.5494,z:1.4411}, target:{x:1.1108,y:-0.0404,z:0.7378}},
+
+// cutA
+{pos:{x:2.3969,y:10.4252,z:1.9761}, target:{x:1.1108,y:-0.0404,z:0.7378}},
+
+
+
+
+  {pos:{x:3.9193,y:10.1046,z:2.1190},target:{x:1.1108,y:-0.0404,z:0.7378}},    // cut12
+  {pos:{x:6.1840,y:9.2430,z:3.8424},target:{x:1.1109,y:-0.0404,z:0.7378}},    // cut13
+  {pos:{x:4.2400,y:8.8948,z:4.8689},target:{x:1.1109,y:-0.0404,z:0.7378}},    // cut14
+  {pos:{x:2.2959,y:8.5466,z:5.8954},target:{x:1.1109,y:-0.0404,z:0.7378}},    // cut15
+  {pos:{x:0.3519,y:8.1984,z:6.9218},target:{x:1.1109,y:-0.0404,z:0.7378}},    // cut16
+  {pos:{x:-1.5921,y:7.8501,z:7.9483},target:{x:1.1109,y:-0.0404,z:0.7378}},   // cut17
+  {pos:{x:-2.1823,y:8.3577,z:6.3542},target:{x:0.6874,y:-0.1793,z:0.7804}},   // cut18
+  {pos:{x:-2.7725,y:8.8653,z:4.7601},target:{x:0.2639,y:-0.3182,z:0.8230}},   // cut19
+  {pos:{x:-3.9528,y:9.8806,z:1.5720},target:{x:-0.5830,y:-0.5960,z:0.9081}},  // cut20
+  {pos:{x:-0.5835,y:10.1543,z:1.2401},target:{x:-0.5835,y:-0.5962,z:0.9082}}, // cut21
+  {pos:{x:-0.5835,y:10.4291,z:0.9082},target:{x:-0.5835,y:-0.5962,z:0.9082}}, // cut22
+  {pos:{x:-0.4374,y:10.3963,z:0.6828},target:{x:-0.4374,y:-0.6289,z:0.6828}}, // cut23
+  {pos:{x:-0.2913,y:10.3636,z:0.4574},target:{x:-0.2913,y:-0.6616,z:0.4574}}, // cut24
+ 
 ];
+
+
 FRAMES.push(JSON.parse(JSON.stringify(FRAMES[0]))); // إغلاق حلقي
 
 
 
 
-//playDemoCamera
+//playDemoCamera 4
 export function playDemoCamera(camera, controls, { ease="sine.inOut", seg=4 } = {}) {
   stopAll(camera, controls); isDemoRunning = true;
   document.body.classList.add('ui-hide-pulses');
-  document.body.classList.add('demo-mode');   // ← اخفِ كل الأزرار ما عدا demoBtn
-
-
+  document.body.classList.add('demo-mode');
 
   const hadDamping = controls?.enableDamping;
-  if (controls) { controls.enabled = false; controls.enableDamping = false; }
+  if (controls) { controls.enabled = false; controls.enableDamping = true; }
 
   const s = FRAMES[0];
   camera.position.set(s.pos.x, s.pos.y, s.pos.z);
@@ -323,41 +346,51 @@ export function playDemoCamera(camera, controls, { ease="sine.inOut", seg=4 } = 
 
   const intro = fadeCut({ color:"#000", inDur:0, hold:0.1, outDur:0.7 });
 
-const tl = gsap.timeline({
-  repeat:-1, paused:true, defaults:{ ease },
-  onUpdate: () => controls?.update(),
-onKill: () => {
-  isDemoRunning = false;
-  clearTimeout(autoPaintTimer); autoPaintTimer = null;
-  if (window.paintMats?.length) {
-    gsap.killTweensOf(window.paintMats.map(m => m.color));
-  }
-  if (controls) { controls.enabled = true; }   // ✅
-  if (controls) controls.enableDamping = hadDamping;
+  const tl = gsap.timeline({
+    repeat:-1,
+    paused:true,
+    defaults:{ ease },
+    onUpdate: () => controls?.update(),
+    onKill: () => {
+      isDemoRunning = false;
+      clearTimeout(autoPaintTimer); autoPaintTimer = null;
+      if (window.paintMats?.length) gsap.killTweensOf(window.paintMats.map(m => m.color));
+      if (controls) { controls.enabled = true; controls.enableDamping = hadDamping; }
+      document.body.classList.remove('demo-mode');
+      document.body.classList.remove('ui-hide-pulses');
+    }
+  });
 
-  document.body.classList.remove('demo-mode');     // ← رجّع الأزرار
-  document.body.classList.remove('ui-hide-pulses'); // (اختياري) رجّع الـ pulses
+  for (let i = 0; i < FRAMES.length - 1; i++) {
+    const a = FRAMES[i];
+    const b = FRAMES[i + 1];
+
+    // Log قبل كل cut في الديمو
+    tl.call(() => {
+      console.log(`DEMO cut ${i+1} → ${i+2}`, {
+        from: a.pos, to: b.pos,
+        targetFrom: a.target, targetTo: b.target
+      });
+    });
+
+    tl.to(camera.position, { duration: seg, x: b.pos.x, y: b.pos.y, z: b.pos.z, immediateRender: false });
+    if (controls) {
+      tl.to(controls.target, { duration: seg, x: b.target.x, y: b.target.y, z: b.target.z, immediateRender: false }, "<");
+    } else {
+      tl.add(() => camera.lookAt(b.target.x, b.target.y, b.target.z), "<");
+    }
+  }
+
+  intro.eventCallback("onComplete", () => {
+    tl.play();
+    autoPaintCycle(window.paintMats);
+  });
+
+  currentCamTL = tl;
+  currentCamTL.timeScale(1);  //speed demo
+  return tl;
 }
 
-});
-
-
-  for (let i=0; i<FRAMES.length-1; i++) {
-    const b = FRAMES[i+1];
-    tl.to(camera.position, { duration:seg, x:b.pos.x, y:b.pos.y, z:b.pos.z, immediateRender:false });
-    controls
-      ? tl.to(controls.target, { duration:seg, x:b.target.x, y:b.target.y, z:b.target.z, immediateRender:false }, "<")
-      : tl.add(() => camera.lookAt(b.target.x, b.target.y, b.target.z), "<");
-  }
-
- intro.eventCallback("onComplete", () => {
-  tl.play();
-  autoPaintCycle(window.paintMats);   // ← هون تبدأ دورة الألوان مع بداية الـ Demo
-});
-
-currentCamTL = tl;
-return tl;
-}
 
 
 
@@ -566,15 +599,15 @@ let autoPaintTimer = null;
 function autoPaintCycle(materials) {
   if (!materials?.length || !isDemoRunning) return;
 
-  const darkColors = [
-    "#111111", // أسود غامق
-    "#222831", // رمادي غرافيتي
-    "#2c3e50", // أزرق كربوني
-    "#4b3621", // بني شوكولا غامق
-    "#0d1b2a", // أزرق كحلي داكن
-    "#1b4026", // أخضر غامق
-    "#401b1b"  // أحمر غامق
-  ];
+const darkColors = [
+  "#570e0e", // أحمر غامق (مو كحلي)
+  "#111111", // أسود غامق
+  "#222831", // رمادي غرافيتي
+  "#2c3e50", // أزرق كربوني
+  "#4b3621", // بني شوكولا غامق
+  "#1b4026", // أخضر غامق
+  "#401b1b"  // أحمر غامق
+];
 
   let i = 0;
 
