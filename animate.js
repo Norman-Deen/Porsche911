@@ -3,10 +3,8 @@ import gsap from "https://cdn.skypack.dev/gsap";
 
 
 
-
-
-
-
+/////////////////////////////////////////////////
+//intro film
 /* ===== إحداثيات اللقطات ===== */
 const CUT1_START = {
   pos:{x:0.7420866978954554,y:3.508718714652253,z:3.3472833556694024},
@@ -73,32 +71,37 @@ function ensureFadeLayer() {
 }
 
 /* ===== تحريك كاميرا (position + target) ===== */
-function tweenCut(camera, controls, START, END, { duration=6, ease="sine.inOut" } = {}) {
+function tweenCut(camera, controls, START, END, { duration=6, ease="sine.inOut", trim=-2 } = {}) {
+  const trimmedDuration = Math.max(0, duration - 2 * trim); // نقص نص ثانية من كل طرف
+  const tl = gsap.timeline({ defaults: { duration: trimmedDuration, ease } });
+
+  // بداية من زمن مقصوص
   camera.position.set(START.pos.x, START.pos.y, START.pos.z);
   if (controls) {
-    controls.enabled = false;
     controls.target.set(START.target.x, START.target.y, START.target.z);
     controls.update();
   } else {
     camera.lookAt(START.target.x, START.target.y, START.target.z);
   }
 
-  const tl = gsap.timeline({
-    defaults: { duration, ease },
-    onUpdate: () => { controls ? controls.update() : camera.lookAt(END.target.x, END.target.y, END.target.z); }
-  });
-
-  tl.to(camera.position, { x: END.pos.x, y: END.pos.y, z: END.pos.z }, 0);
-
+  // الانتقال مع قطع البداية والنهاية
+  tl.to(camera.position, { x: END.pos.x, y: END.pos.y, z: END.pos.z }, trim);
   if (controls) {
-    tl.to(controls.target, { x: END.target.x, y: END.target.y, z: END.target.z }, 0);
+    tl.to(controls.target, { x: END.target.x, y: END.target.y, z: END.target.z }, trim);
   } else {
     const t = new THREE.Vector3(START.target.x, START.target.y, START.target.z);
-    tl.to(t, { x: END.target.x, y: END.target.y, z: END.target.z, onUpdate: () => camera.lookAt(t) }, 0);
+    tl.to(t, { x: END.target.x, y: END.target.y, z: END.target.z, onUpdate: () => camera.lookAt(t) }, trim);
   }
 
   return tl;
 }
+
+
+
+
+
+
+
 
 /* ===== فيد مع نداء منتصف ===== */
 function fadeCut({ color="#000", inDur=0.7, hold=0.25, outDur=0.7, onMid=()=>{} } = {}) {
@@ -114,8 +117,7 @@ function fadeCut({ color="#000", inDur=0.7, hold=0.25, outDur=0.7, onMid=()=>{} 
 
 
 
-//playCameraMove
-/* ===== التشغيل الدائم لكل اللقطات ===== */
+//playCameraMove  التشغيل الدائم لكل اللقطات
 export function playCameraMove(
   camera, controls,
   {
@@ -240,7 +242,7 @@ master.add( fadeCut({
 
   return master;
 }
-
+///////////////////////////////////////////////////////////
 
 
 
