@@ -71,13 +71,13 @@ body{ background-color: rgb(178,178,178); }
   display: inline-flex;     /* ✅ توحيد المحاذاة العمودية */
   align-items: center;
   justify-content: center;
-  height: 34px;             /* ✅ نفس ارتفاع المنتقي */
-  padding: 0 14px;
+  height: 40px;             /* ✅ نفس ارتفاع المنتقي */
+  padding: 0 20px;
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
   background: rgba(0,0,0,0.75);
   color: #fff;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1;
   cursor: pointer;
   transition: transform .1s ease, background .15s ease, border-color .15s ease;
@@ -135,7 +135,7 @@ body{ background-color: rgb(178,178,178); }
   border-radius: 6px;
   background: rgba(255,255,255,0.15);
   color: #fff;
-  font-size: 12px;
+  font-size: 16px;
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -330,3 +330,13 @@ body.ui-hide-pulses .pulse { display: none !important; }
   to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 }
 
+
+
+
+#popup-content {
+  font-family: 'Audiowide', sans-serif;  /* 🔹 خط شبيه Porsche */
+  font-size: 15px;
+  line-height: 1.5;
+  
+  color: #111;
+}
