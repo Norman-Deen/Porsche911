@@ -102,7 +102,7 @@ loader.setDRACOLoader(dracoLoader);
 
 
 
-new RGBELoader().load("./src/MR_INT-005_WhiteNeons_NAD.hdr", (hdr) => {
+new RGBELoader().load("./src/assets/img/MR_INT-005_WhiteNeons_NAD2K.hdr", (hdr) => {
   hdr.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = hdr;
 

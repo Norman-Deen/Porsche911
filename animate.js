@@ -465,7 +465,7 @@ demoBtn.addEventListener("click", () => {
 ///////////////////////////////////////////////////////
 // Sound + Start/Skip toggle
 const animBtn = document.getElementById("startAnimBtn");
-const audio = new Audio("./src/assets/audio/the-last-point-beat-electronic-digital-394291.mp3");
+const audio = new Audio("./src/assets/audio/the-last-point-beat-electronic-digital-394291-low.mp3");
 audio.loop = true; audio.volume = 0.6;
 
 const engineSfx = new Audio("./src/assets/audio/car-engine-372477.mp3");
