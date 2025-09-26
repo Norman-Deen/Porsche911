@@ -337,4 +337,46 @@ body.ui-hide-pulses .pulse { display: none !important; }
     padding: 0 10px;
     font-size: 14px;
   }
+
+
+.popup {
+  width: min(60vw, 360px);  /* ياخد الأصغر: 60% من العرض أو 360px */
+  max-height: 74vh;         /* يمنع يطلع برّا الشاشة */
+  padding: 12px 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  gap: 8px;
+}
+
+  .popup-image{
+    max-height: 28vh;         /* الصورة ما تكسر الكارد */
+    object-fit: contain;
+  }
+  #popup-content{
+    max-height: 34vh;         /* مساحة تمرير للنص */
+    overflow: auto;
+  }
+  .popup .close-btn{
+    width: 36px; height: 36px; font-size: 22px;  /* أكبر ولمس أسهل */
+  }
+
+
+
+
+
+}
+
+
+/* موبايل + وضع أفقي: صغّر العرض والارتفاع */
+@media (orientation: landscape) and (max-width: 920px) {
+  .popup{
+    width: min(52vw, 320px);
+    max-height: 64vh;
+    padding: 10px 12px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  .popup-image{ max-height: 40vh; }
+  #popup-content{ max-height: 30vh; }
 }
