@@ -609,6 +609,8 @@ if (startBtn) {
 
 
 
+
+
 // === About popup content ===
 const ABOUT_DATA = {
   text: `
@@ -637,3 +639,5 @@ document.getElementById('abouttn')?.addEventListener('click', (e) => {
   const y = Math.round(window.innerHeight * 0.2); // مسافة بسيطة من الأعلى
   showPopupAt(x, y, ABOUT_DATA);
 });
+
+

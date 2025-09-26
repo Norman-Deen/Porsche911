@@ -76,13 +76,14 @@ body{ background-color: rgb(178,178,178); }
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
   background: rgba(0,0,0,0.75);
-  color: #fff;
+  color: #ffffffc1;
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
   transition: transform .1s ease, background .15s ease, border-color .15s ease;
   backdrop-filter: blur(6px);
 }
+
 .controls .btn:hover,
 .color-picker:hover {
   background: rgba(118, 118, 118, 0.9);   /* ✅ غامق أنيق بدل الرمادي الفاتح */
@@ -90,10 +91,25 @@ body{ background-color: rgb(178,178,178); }
   transform: translateY(-1px);
 }
 
+.controls .btn:focus:not(:hover),
+.color-picker:focus:not(:hover) {
+  background: initial;   /* بيرجع للون الطبيعي */
+  border-color: initial; /* إذا بدك كمان يرجع البوردر */
+  transform: none;       /* يوقف الرفع */
+}
+
 
 .controls .btn:focus-visible {
   outline: 2px solid rgba(255,255,255,0.45);
   outline-offset: 2px;
+}
+
+.controls .btn:focus {
+  outline: none;
+}
+.controls .btn:focus:not(:hover) {
+  background: rgba(0,0,0,0.75); /* نفس الطبيعي */
+  transform: none;
 }
 
 
@@ -314,6 +330,18 @@ body.ui-hide-pulses .pulse { display: none !important; }
 
 
 
+.controls .btn:hover:not(:focus):not(:active),
+.color-picker:hover:not(:focus):not(:active) {
+  background: rgba(118, 118, 118, 0.9);
+  border-color: rgba(255,255,255,0.35);
+  transform: translateY(-1px);
+}
+.controls .btn:active { transform: none; }
+.controls .btn:focus { outline: none; background: rgba(0,0,0,0.75); transform: none; }
+.controls .btn:focus-visible { outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
+
+/* موبايل */
+.controls .btn { -webkit-tap-highlight-color: transparent; }
 
 
 
