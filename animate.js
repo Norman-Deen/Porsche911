@@ -44,10 +44,11 @@ const CUT4_END = {
 };
 
 
-const MAIN_CAM = {
-  pos:    { x: 5.1, y: 4.6, z: 7.2 },
-  target: { x: 0,   y: 0,   z: 0   }
-};
+// animate.js
+const MAIN_CAM = (window.innerWidth <= 768)
+  ? { pos:{ x:10.2, y:9.2, z:14.4 }, target:{ x:0, y:0, z:0 } }   // موبايل
+  : { pos:{ x:5.1,  y:4.6,  z:7.2  }, target:{ x:0, y:0, z:0 } };  // ديسكتوب
+
 
 
 

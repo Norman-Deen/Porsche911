@@ -322,7 +322,7 @@ body.ui-hide-pulses .pulse { display: none !important; }
 @media (max-width: 768px) {
   .controls {
     top: 10px;
-    right: 10px;          /* خليه موجب */
+     right: 4%;    /* المسافة من اليمين كنسبة */
     left: auto;           /* ما يمد لليسار */
     width: auto;          /* ياخد حجم الأزرار بس */
     flex-direction: row;       

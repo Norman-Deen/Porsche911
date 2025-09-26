@@ -245,6 +245,7 @@ const aspect1 = { width: window.innerWidth, height: window.innerHeight };
 const camera = new THREE.PerspectiveCamera(30, aspect1.width / aspect1.height, 0.1, 1000);
 camera.position.set(5.1, 4.6, 7.2);
 
+
 scene.add(camera);
 window.camera = camera; // ⬅️ هيك الكاميرا كمان متاحة
 
@@ -270,6 +271,13 @@ window.orbitControls = orbitControls; // ⬅️ هيك  كمان متاحة
 //Limit
 orbitControls.minPolarAngle = 0;          // يسمح بالنظر من فوق
 orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;  // ما يخلي الكاميرا تنزل تحت خط الأفق (90°)
+
+// لو شاشة صغيرة (موبايل) استخدم القيم الجديدة
+if (window.innerWidth <= 768) {
+  camera.position.set(10.2, 9.2, 14.4);
+  orbitControls.target.set(0, 0, 0);
+  orbitControls.update();
+}
 
 
 
