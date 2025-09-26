@@ -572,14 +572,40 @@ window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopup();
 const startBtn = document.getElementById("startBtn");
 const controlsDiv = document.querySelector(".controls");
 
+// Wake Lock لمنع خمول الشاشة (موبايل)
+let wakeLock = null;
+async function requestWakeLock() {
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => {
+      console.log("Wake Lock released");
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// listener: لما ترجع للتبويب → يعيد تشغيل Wake Lock
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && "wakeLock" in navigator) {
+    requestWakeLock();
+  }
+});
+
 if (startBtn) {
   startBtn.addEventListener("click", async () => {
     await bootAudio();                      // الصوت هنا
     loadingScreen.style.display = "none";   // أخفِ شاشة التحميل
     controlsDiv.style.display = "flex";     // ← أظهر الأزرار هون فقط
     document.getElementById("startAnimBtn")?.click(); // ابدأ الفيلم فورًا
+
+    // ✅ اطلب Wake Lock بعد أول تفاعل
+    if ("wakeLock" in navigator) {
+      requestWakeLock();
+    }
   });
 }
+
 
 
 
