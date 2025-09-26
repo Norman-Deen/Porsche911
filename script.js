@@ -415,10 +415,15 @@ const nextFrame = () => new Promise(r => requestAnimationFrame(r));
 // clamp مساعد
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
+
+
+
+/////////////////////////////////////////////////////
 // إظهار البوب-أب متموضع مسبقًا بدون أي قفزة/تصحيح بصري
 async function showPopupAt(x, y, data) {
   const text = data?.text ?? randomFact();
-  popupContent.textContent = text;
+ popupContent.innerHTML = text;
+
 
   // --- (A) جهّز الصورة أولاً ---
   if (popupImage) {
@@ -562,3 +567,34 @@ if (startBtn) {
     document.getElementById("startAnimBtn")?.click(); // ابدأ الفيلم فورًا
   });
 }
+
+
+
+// === About popup content ===
+const ABOUT_DATA = {
+  text: `
+    <strong>Porsche 911 WebGL Demo</strong><br>
+    Created with Three.js + GSAP<br>
+    HDRI reflections, tone mapping, intro & demo camera cuts<br><br>
+
+    Vehicle design © Porsche AG<br>
+    3D model by Lionsharp<br>
+    License: CC BY 4.0<br><br>
+
+    Background music: "The Last Point (Beat Electronic Digital)"<br>
+    © Pixabay, Free for commercial use<br><br>
+
+    Developed by Pa<br>
+    <a href="https://pure-art.co" target="_blank" rel="noopener noreferrer">Pure-art.co</a>
+  `,
+  image: './src/assets/img/Loading.jpg'
+};
+
+
+// زر "About" → افتح نفس نافذة الـpopup في وسط الشاشة
+document.getElementById('abouttn')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const x = Math.round(window.innerWidth / 2);
+  const y = Math.round(window.innerHeight * 0.2); // مسافة بسيطة من الأعلى
+  showPopupAt(x, y, ABOUT_DATA);
+});

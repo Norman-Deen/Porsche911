@@ -252,47 +252,15 @@ body.ui-hide-pulses .pulse { display: none !important; }
 /* عطّل الأنيميشن أثناء القياس لتفادي الوميض */
 .popup.appearing { animation: none !important; }
 
-/* السهم الصغير (يبقى كما هو) */
-.popup::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%) rotate(45deg);
-  width: 14px;
-  height: 14px;
-  background: inherit;
-  backdrop-filter: inherit;
-  border-left: 1px solid rgba(0,0,0,0.12);
-  border-bottom: 1px solid rgba(0,0,0,0.12);
-  border-radius: 2px;
-}
-
-/* زر الإغلاق والصورة وباقي التنسيقات تبقى كما هي عندك */
-
-/* السهم الصغير */
-.popup::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%) rotate(45deg);
-  width: 14px;
-  height: 14px;
-  background: inherit;
-  backdrop-filter: inherit;
-  border-left: 1px solid rgba(0,0,0,0.12);
-  border-bottom: 1px solid rgba(0,0,0,0.12);
-  border-radius: 2px;
-}
 
 /* زر إغلاق دائري صغير */
 .popup .close-btn {
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
+  font-size: 24px; /* زيد حجم علامة × */
   display: grid;
   place-items: center;
   border-radius: 999px;
