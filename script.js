@@ -267,6 +267,11 @@ orbitControls.maxDistance = 20;  // أبعد مسافة للكاميرا
 orbitControls.enableDamping = true;
 window.orbitControls = orbitControls; // ⬅️ هيك  كمان متاحة
 
+//Limit
+orbitControls.minPolarAngle = 0;          // يسمح بالنظر من فوق
+orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;  // ما يخلي الكاميرا تنزل تحت خط الأفق (90°)
+
+
 
 // Grid
 const gridMain = new THREE.GridHelper(10, 10, 0x888888, 0x888888);  //(size, divisions, color1, color2);
