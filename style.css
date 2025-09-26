@@ -308,3 +308,33 @@ body.ui-hide-pulses .pulse { display: none !important; }
   
   color: #111;
 }
+
+
+
+
+
+
+
+
+
+
+/* mobile */
+@media (max-width: 768px) {
+  .controls {
+    top: 10px;
+    right: 10px;          /* خليه موجب */
+    left: auto;           /* ما يمد لليسار */
+    width: auto;          /* ياخد حجم الأزرار بس */
+    flex-direction: row;       
+    flex-wrap: nowrap;    
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .controls .btn,
+  .controls .color-picker {
+    height: 36px;
+    padding: 0 10px;
+    font-size: 14px;
+  }
+}
