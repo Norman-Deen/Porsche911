@@ -1,421 +1,198 @@
+/* Reset + theme vars */
 *{ margin:0; padding:0; }
-body{ background-color: rgb(178,178,178); }
+body{ background-color: var(--page-bg); }
+:root{
+  --page-bg: rgb(178,178,178);
+  --ui-bg: rgba(0,0,0,0.75);
+  --ui-hover: rgba(118,118,118,0.9);
+  --ui-border: rgba(255,255,255,0.15);
+  --ui-border-strong: rgba(255,255,255,0.35);
+  --card-bg: rgba(255,255,255,0.86);
+  --card-border: rgba(0,0,0,0.12);
+  --text-light: #fff;
+  --text-light-muted: #ffffffc1;
+  --text-dark: #111;
+  --popup-close-bg: rgba(255,255,255,0.9);
+  --popup-close-hover: #fff;
+  --surface-light: #fff;
+  --backdrop-dark: #000;
+}
 
-
-
-
+/* Loading overlay */
 #loading-screen {
   position: fixed;
   inset: 0;
-  background: #ffffff;  /* مؤقت */
+  background: var(--surface-light);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
 }
-
-#loading-screen img {
-  max-width: 100vh;  /* أو أي مقاس يناسبك */
-  position: relative;
-}
-
-#loading-text {
-  position: absolute;
-  top: 70%;
-  left: 50%;
+#loading-screen img { max-width: 100vh; position: relative; }
+#loading-text{
+  position: absolute; top: 70%; left: 50%;
   transform: translate(-50%, -50%);
-  color: #000;
-  font-size: 26px;
-  font-weight: 500;
-  background: transparent;
-  font-family: 'Orbitron', sans-serif; /* 🔥 خط أقرب لستايل Porsche */
+  color: var(--text-dark); font-size: 26px; font-weight: 500;
+  background: transparent; font-family: 'Orbitron', sans-serif;
 }
-#startBtn {
-  position: absolute;
-  top: 73%;                 /* تحته بشوي من العداد */
-  left: 50%;
+
+/* Start CTA (appears after load) */
+#startBtn{
+  position: absolute; top: 73%; left: 50%;
   transform: translate(-50%, -50%);
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(0,0,0,0.85);
-  color: #fff;
-  font-size: 16px;
-  font-family: 'Orbitron', sans-serif;
-  cursor: pointer;
-  display: none;            /* مخفي بالبداية */
-  transition: background 0.2s, transform 0.15s;
-  z-index: 2100;            /* أعلى من العداد */
+  padding: 12px 24px; border: none; border-radius: 8px;
+  background: var(--ui-bg); color: var(--text-light); font-size: 16px;
+  font-family: 'Orbitron', sans-serif; cursor: pointer;
+  display: none; transition: background .2s, transform .15s; z-index: 2100;
+}
+#startBtn:hover{ background: var(--ui-hover); transform: translate(-50%, -50%) scale(1.05); }
+/* Gentle pulse to attract tap */
+#startBtn{ animation: pulseScale 1.2s ease-in-out infinite alternate; }
+@keyframes pulseScale{ from{ transform: translate(-50%, -50%) scale(1); } to{ transform: translate(-50%, -50%) scale(1.08); } }
+
+/* Controls bar (top-right) */
+.controls{
+  position: fixed; top: 20px; right: 20px;
+  flex-wrap: wrap; gap: 8px 10px; z-index: 10000;
+  background: transparent; align-items: center; display: none;
+}
+.controls .btn{
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 20px; border: 1px solid var(--ui-border);
+  background: var(--ui-bg); border-radius: 5px; color: var(--text-light-muted);
+  font-size: 16px; line-height: 1; cursor: pointer;
+  transition: transform .1s, background .15s, border-color .15s; backdrop-filter: blur(6px);
+}
+/* Hover/focus tuning to avoid stuck states */
+.controls .btn:hover, .color-picker:hover{
+  background: var(--ui-hover); border-color: var(--ui-border-strong); transform: translateY(-1px);
+}
+.controls .btn:focus:not(:hover), .color-picker:focus:not(:hover){ background: initial; border-color: initial; transform: none; }
+.controls .btn:focus-visible{ outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
+.controls .btn:focus{ outline: none; }
+.controls .btn:focus:not(:hover){ background: var(--ui-bg); transform: none; }
+
+/* Color picker wrapper + native input */
+.color-picker{
+  display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; height: 34px;
+  border: 1px solid var(--ui-border); border-radius: 10px; background: var(--ui-bg);
+  color: var(--text-light); font-family: 'Orbitron', sans-serif; font-size: 13px; cursor: pointer;
+}
+.color-picker input[type="color"]{
+  width: 22px; height: 22px; border: none; border-radius: 4px; background: transparent; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+}
+.color-picker input[type="color"]::-webkit-color-swatch-wrapper{ padding: 0; }
+.color-picker input[type="color"]::-webkit-color-swatch{ border: none; border-radius: 4px; }
+/* Inline reset */
+.color-picker .reset-inside{
+  margin-left: 6px; padding: 2px 6px; border: none; border-radius: 6px;
+  background: rgba(255,255,255,0.15); color: var(--text-light); font-size: 16px; cursor: pointer; transition: background .2s;
+}
+.color-picker .reset-inside:hover{ background: rgba(255,255,255,0.3); }
+
+/* Mode-based UI visibility */
+body.demo-mode .controls .btn:not(#demoBtn){ display: none !important; }
+body.intro-mode .controls .btn:not(#startAnimBtn){ display: none !important; }
+
+/* Global fade (driven by GSAP) */
+#fade{
+  position: fixed; inset: 0; background: var(--backdrop-dark);
+  opacity: 0; pointer-events: none; z-index: 1800;
 }
 
-#startBtn:hover {
-  background: rgba(0,0,0,0.7);
-  transform: translate(-50%, -50%) scale(1.05);
+/* WebGL canvas */
+.canvas{ position: fixed; left: 0; top: 0; }
+
+/* Pulsing hotspots (DOM overlay) */
+.pulse{
+  position: fixed; transform: translate(-50%, -50%);
+  z-index: 999; display: none; cursor: pointer; background: transparent;
 }
-#startBtn {
-  animation: pulseScale 1.2s ease-in-out infinite alternate;
-}
+.pulse img{ width: 28px; height: 28px; display: block; animation: pulse 1s infinite alternate; }
+@keyframes pulse{ from{ transform: scale(1); } to{ transform: scale(1.3); } }
+/* Hide during intro/demo */
+body.ui-hide-pulses .pulse{ display: none !important; }
 
-@keyframes pulseScale {
-  from { transform: translate(-50%, -50%) scale(1); }
-  to   { transform: translate(-50%, -50%) scale(1.08); }
-}
-
-
-.controls {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  flex-wrap: wrap;          /* ✅ يلف على الشاشات الصغيرة */
-  gap: 8px 10px;
-  z-index: 10000;
-  background: transparent;
-  align-items: center;
-  display: none;
-}
-
-.controls .btn {
-  display: inline-flex;     /* ✅ توحيد المحاذاة العمودية */
-  align-items: center;
-  justify-content: center;
-  height: 40px;             /* ✅ نفس ارتفاع المنتقي */
-  padding: 0 20px;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 5px;
-  background: rgba(0,0,0,0.75);
-  color: #ffffffc1;
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  transition: transform .1s ease, background .15s ease, border-color .15s ease;
-  backdrop-filter: blur(6px);
-}
-
-.controls .btn:hover,
-.color-picker:hover {
-  background: rgba(118, 118, 118, 0.9);   /* ✅ غامق أنيق بدل الرمادي الفاتح */
-  border-color: rgba(255,255,255,0.35);
-  transform: translateY(-1px);
-}
-
-.controls .btn:focus:not(:hover),
-.color-picker:focus:not(:hover) {
-  background: initial;   /* بيرجع للون الطبيعي */
-  border-color: initial; /* إذا بدك كمان يرجع البوردر */
-  transform: none;       /* يوقف الرفع */
-}
-
-
-.controls .btn:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.45);
-  outline-offset: 2px;
-}
-
-.controls .btn:focus {
-  outline: none;
-}
-.controls .btn:focus:not(:hover) {
-  background: rgba(0,0,0,0.75); /* نفس الطبيعي */
-  transform: none;
-}
-
-
-
-/* Label تبع اللون */
-.color-picker {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 10px;
-  height: 34px;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 10px;
-  background: rgba(0,0,0,0.75);
-  color: #fff;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.color-picker input[type="color"] {
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.color-picker input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-.color-picker input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
-
-/* زر Reset داخل الزر */
-.color-picker .reset-inside {
-  margin-left: 6px;
-  padding: 2px 6px;
-  border: none;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.color-picker .reset-inside:hover {
-  background: rgba(255,255,255,0.3);
-}
-
-/* for hide btn*/
-body.demo-mode .controls .btn:not(#demoBtn) {
-  display: none !important;
-}
-body.intro-mode .controls .btn:not(#startAnimBtn) {
-  display: none !important;
-}
-
-
-
-
-#fade {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 1800;
-}
-
-
-.canvas{
-    position: fixed;
-    left: 0;
-    top: 0;
-}
-
-.pulse {
-  position: fixed;
-  transform: translate(-50%, -50%);
-  z-index: 999;
-  display: none;
-  cursor: pointer;
-  background: transparent;
-}
-
-.pulse img {
-  width: 28px;   /* حجم الأيقونة */
-  height: 28px;
-  display: block;
-  animation: pulse 1s infinite alternate;
-}
-
-
-@keyframes pulse {
-  from { transform: scale(1); }
-  to   { transform: scale(1.3); }
-}
-
-body.ui-hide-pulses .pulse { display: none !important; }
-
-
-
-
-
-/* Popup – أنيق وخفيف + دخول بلا قفزة */
-.popup {
-  position: fixed;
-  left: 0;                          /* سيُضبط لاحقًا بالـ JS */
-  top: 0;                           /* سيُضبط لاحقًا بالـ JS */
-  transform: translate(-50%, -100%);/* افتراضيًا فوق النقطة */
-  display: none;
-
-  /* أبعاد */
-  width: clamp(260px, 86vw, 360px);
-  max-height: none;    /* السماح بالتمدد */
-  overflow: visible;   /* ما يخفـي شيء */
-
-  /* شكل */
-  padding: 14px 16px 18px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0,0,0,0.12);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-  color: #111;
-  line-height: 1.45;
-  font-size: 15px;
-  z-index: 1000;
-  user-select: text;
-
-  /* تخطيط داخلي */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  /* مهم: انتقالات لا تشمل left/top */
-  transition: opacity .18s ease, transform .18s ease; /* لا تضيف left/top هون */
-
-  /* مصدر أنيميشن الانبثاق يكون “ثابت” من جهة السهم */
+/* Popup card */
+.popup{
+  position: fixed; left: 0; top: 0; transform: translate(-50%, -100%); display: none;
+  /* Sizing */
+  width: clamp(260px, 86vw, 360px); max-height: none; overflow: visible;
+  /* Look */
+  padding: 14px 16px 18px; border-radius: 14px; background: var(--card-bg);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  color: var(--text-dark); line-height: 1.45; font-size: 15px; z-index: 1000; user-select: text;
+  /* Layout */
+  display: flex; flex-direction: column; gap: 10px;
+  /* Transitions */
+  transition: opacity .18s ease, transform .18s ease;
+  /* Transform origin follows arrow (set via CSS var) */
   transform-origin: var(--arrow-x, 50%) var(--origin-y, 100%);
-
-  /* أداء (اختياري) */
-  will-change: transform, opacity; /* شِل left/top من will-change */
+  will-change: transform, opacity;
 }
+@keyframes pop-in-stable{ from{ opacity:0; transform: translate(-50%, -100%) scale(.98);} to{ opacity:1; transform: translate(-50%, -100%) scale(1);} }
+.popup.appearing{ animation: none !important; }
 
-/* اختياري: أنيميشن دخول لا يغيّر موضع الترجمة (فقط scale/opacity) */
-@keyframes pop-in-stable {
-  from { opacity: 0; transform: translate(-50%, -100%) scale(0.98); }
-  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
-}
-/* لو بدك تستخدم الأنيميشن فوق، فعّله هيك: */
-/* .popup { animation: pop-in-stable 140ms ease-out; } */
-
-
-/* عطّل الأنيميشن أثناء القياس لتفادي الوميض */
-.popup.appearing { animation: none !important; }
-
-
-/* زر إغلاق دائري صغير */
-.popup .close-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 34px;
-  height: 34px;
-  font-size: 24px; /* زيد حجم علامة × */
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: rgba(255,255,255,0.9);
-  cursor: pointer;
-  font-weight: 700;
-  line-height: 1;
-  color: #333;
+/* Popup close button */
+.popup .close-btn{
+  position: absolute; top: 8px; right: 8px;
+  width: 34px; height: 34px; font-size: 24px; display: grid; place-items: center;
+  border-radius: 999px; border: 1px solid var(--card-border); background: var(--popup-close-bg);
+  cursor: pointer; font-weight: 700; line-height: 1; color: var(--text-dark);
   transition: transform .08s ease, background .12s ease;
 }
-.popup .close-btn:hover { transform: scale(1.06); background: #fff; }
+.popup .close-btn:hover{ transform: scale(1.06); background: var(--popup-close-hover); }
 
-/* الصورة: نسبة أبعاد ثابتة بلا تشويه */
-.popup-image {
-  display: block;
-  max-width: 100%;   /* يخليها تاخد عرض الكارد تقريباً */
-  height: auto;
-  border-radius: 8px;
-  object-fit: contain; /* أو cover لو بدك اقتصاص */
+/* Popup media/content */
+.popup-image{
+  display: block; max-width: 100%; height: auto; border-radius: 8px; object-fit: contain;
+}
+#popup-content{
+  flex: 1 1 auto; overflow: auto; padding: 8px 4px; background: transparent;
+}
+@keyframes pop-in{ from{ opacity:0; transform: translate(-50%, -96%) scale(.98);} to{ opacity:1; transform: translate(-50%, -100%) scale(1);} }
+
+/* Popup typography */
+#popup-content{
+  font-family: 'Audiowide', sans-serif; font-size: 15px; line-height: 1.5; color: var(--text-dark);
 }
 
+/* Input focus/tap polish */
+.controls .btn:active{ transform: none; }
+.controls .btn:focus{ outline: none; background: var(--ui-bg); transform: none; }
+.controls .btn:focus-visible{ outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
+.controls .btn{ -webkit-tap-highlight-color: transparent; }
 
-/* النص: يتمرّر داخليًا عند الزيادة */
-#popup-content {
-  flex: 1 1 auto;
-  overflow: auto;
-  padding: 8px 4px;
-  background: transparent;  /* يمنع لون رمادي موروث */
-}
-
-/* حركة الظهور */
-@keyframes pop-in {
-  from { opacity: 0; transform: translate(-50%, -96%) scale(.98); }
-  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
-}
-
-
-
-
-#popup-content {
-  font-family: 'Audiowide', sans-serif;  /* 🔹 خط شبيه Porsche */
-  font-size: 15px;
-  line-height: 1.5;
-  
-  color: #111;
-}
-
-
-
-
-
-
-.controls .btn:hover:not(:focus):not(:active),
-.color-picker:hover:not(:focus):not(:active) {
-  background: rgba(118, 118, 118, 0.9);
-  border-color: rgba(255,255,255,0.35);
-  transform: translateY(-1px);
-}
-.controls .btn:active { transform: none; }
-.controls .btn:focus { outline: none; background: rgba(0,0,0,0.75); transform: none; }
-.controls .btn:focus-visible { outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
-
-/* موبايل */
-.controls .btn { -webkit-tap-highlight-color: transparent; }
-
-
-
-
-/* mobile */
-@media (max-width: 768px) {
-  .controls {
-    top: 10px;
-     right: 4%;    /* المسافة من اليمين كنسبة */
-    left: auto;           /* ما يمد لليسار */
-    width: auto;          /* ياخد حجم الأزرار بس */
-    flex-direction: row;       
-    flex-wrap: nowrap;    
-    justify-content: flex-start;
-    gap: 6px;
+/* Responsive: mobile */
+@media (max-width: 768px){
+  .controls{
+    top: 10px; right: 4%; left: auto; width: auto;
+    flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 6px;
   }
+  .controls .btn, .controls .color-picker{ height: 36px; padding: 0 10px; font-size: 14px; }
 
-  .controls .btn,
-  .controls .color-picker {
-    height: 36px;
-    padding: 0 10px;
-    font-size: 14px;
-  }
-
-
-.popup {
-  width: min(60vw, 360px);  /* ياخد الأصغر: 60% من العرض أو 360px */
-  max-height: 74vh;         /* يمنع يطلع برّا الشاشة */
-  padding: 12px 12px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.4;
-  gap: 8px;
-}
-
-  .popup-image{
-    max-height: 28vh;         /* الصورة ما تكسر الكارد */
-    object-fit: contain;
-  }
-  #popup-content{
-    max-height: 34vh;         /* مساحة تمرير للنص */
-    overflow: auto;
-  }
-  .popup .close-btn{
-    width: 36px; height: 36px; font-size: 22px;  /* أكبر ولمس أسهل */
-  }
-
-#startBtn {
-  top: 75%;                 /* تحته بشوي من العداد */
-}
-#loading-text {
-  top: 75%;
-}
-
-
-}
-
-
-/* موبايل + وضع أفقي: صغّر العرض والارتفاع */
-@media (orientation: landscape) and (max-width: 920px) {
+  /* Popup scaled for small screens */
   .popup{
-    width: min(52vw, 320px);
-    max-height: 64vh;
-    padding: 10px 12px;
-    font-size: 13px;
-    gap: 6px;
+    width: min(60vw, 360px); max-height: 74vh;
+    padding: 12px 12px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; gap: 8px;
+  }
+  .popup-image{ max-height: 28vh; object-fit: contain; }
+  #popup-content{ max-height: 34vh; overflow: auto; }
+
+  .popup .close-btn{ width: 36px; height: 36px; font-size: 22px; }
+
+  /* Push CTA lower on tall mobiles */
+  #startBtn{ top: 75%; }
+  #loading-text{ top: 75%; }
+}
+
+/* Responsive: mobile landscape */
+@media (orientation: landscape) and (max-width: 920px){
+  .popup{
+    width: min(52vw, 320px); max-height: 64vh;
+    padding: 10px 12px; font-size: 13px; gap: 6px;
   }
   .popup-image{ max-height: 40vh; }
   #popup-content{ max-height: 30vh; }
