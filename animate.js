@@ -380,7 +380,7 @@ export function playDemoCamera(camera, controls, { ease="sine.inOut", seg=4 } = 
   });
 
   currentCamTL = tl;
-  currentCamTL.timeScale(10);  //speed demo
+  currentCamTL.timeScale(1);  //speed demo
   return tl;
 }
 
