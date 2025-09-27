@@ -1,20 +1,105 @@
 
 import * as THREE from './three/build/three.module.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from './three/examples/jsm/loaders/DRACOLoader.js';
 import { RGBELoader } from './three/examples/jsm/loaders/RGBELoader.js';
-import { playCameraMove,playDemoCamera,bootAudio } from './animate.js';
+import { bootAudio } from './animate.js';
 
 
+
+// ---- DRACO ----
+const loadingScreen = document.getElementById('loading-screen');
+const loadingText = document.getElementById('loading-text');
 
 // Create a scene
 const scene = new THREE.Scene();
 window.scene = scene;
 
-// ---- DRACO ----
-const loadingScreen = document.getElementById('loading-screen');
-const loadingText = document.getElementById('loading-text');
+// ---- Helpers ----
+const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+
+//#region Loading (Progress + Manager + Loaders)
+
+// ---- Smooth Loader (fake progress) ----
+let disp = 0, target = 0, rafId = null;
+const lerp = (a,b,t)=>a+(b-a)*t;
+
+function tick() {
+  if (target < 85) target += 0.25; // drift until ~85%
+  disp = lerp(disp, target, 0.12);
+  const shown = Math.min(99, Math.floor(disp));
+  loadingText.textContent = shown + "%";
+  rafId = requestAnimationFrame(tick);
+}
+rafId = requestAnimationFrame(tick);
+
+
+// ---- Loading Manager ----
+const manager = new THREE.LoadingManager(
+  () => { // onLoad
+    target = 100;
+    setTimeout(() => {
+      cancelAnimationFrame(rafId); rafId = null;
+      loadingText.style.display = 'none';
+      const startBtn = document.getElementById('startBtn');
+      if (startBtn) startBtn.style.display = 'inline-block';
+    }, 500);
+  },
+  (url, loaded, total) => { // onProgress
+    const percent = Math.round((loaded / total) * 100);
+    target = Math.max(target, Math.min(99, percent * 0.98));
+  }
+);
+
+
+// ---- GLTF / DRACO Loaders ----
+const loader = new GLTFLoader(manager);
+
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+loader.setDRACOLoader(dracoLoader);
+
+//#endregion
+
+
+//#region Camera / Renderer / Controls
+
+//Camera / Renderer / Controls 
+const aspect1 = { width: window.innerWidth, height: window.innerHeight };
+const camera = new THREE.PerspectiveCamera(30, aspect1.width / aspect1.height, 0.1, 1000);
+camera.position.set(5.1, 4.6, 7.2);
+scene.add(camera);
+window.camera = camera;
+
+const canvas = document.querySelector(".canvas");
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+renderer.setSize(aspect1.width, aspect1.height);
+renderer.setPixelRatio(window.devicePixelRatio || 1);
+
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 4;
+
+const orbitControls = new OrbitControls(camera, renderer.domElement);
+orbitControls.minDistance = 4;
+orbitControls.maxDistance = 20;
+orbitControls.enableDamping = true;
+window.orbitControls = orbitControls;
+
+orbitControls.minPolarAngle = 0;
+orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;
+
+if (window.innerWidth <= 768) {
+  camera.position.set(10.2, 9.2, 14.4);
+  orbitControls.target.set(0, 0, 0);
+  orbitControls.update();
+}
+
+//#endregion
+
+
 
 //#region Points 
 // Point 1
@@ -45,176 +130,98 @@ pointMesh3.visible = false;
 
 
 
+//#region Environment & Model (HDRI → GLTF)
 
-
-// ---- Smooth Loader (start immediately) ----
-let disp = 0, target = 0, rafId = null;
-const lerp = (a,b,t)=>a+(b-a)*t;
-
-function tick() {
-  // انجراف بسيط لحد 85% لو ما في أحداث تحميل لسه
-  if (target < 85) target += 0.25; // ≈25% كل 10 ثواني
-  disp = lerp(disp, target, 0.12);
-  const shown = Math.min(99, Math.floor(disp));
-  loadingText.textContent = shown + "%";
-  rafId = requestAnimationFrame(tick);
-}
-
-// ابدأ العداد مباشرة
-rafId = requestAnimationFrame(tick);
-// -------------------------------------------
-
-
-// LoadingManager
-const manager = new THREE.LoadingManager(
-  () => { // onLoad
-    target = 100; // خلّص التحميل
-    setTimeout(() => {
-      cancelAnimationFrame(rafId); rafId = null;
-      loadingText.style.display = 'none';
-      const startBtn = document.getElementById('startBtn');
-if (startBtn) {
-  startBtn.style.display = 'inline-block';
-}
-
-    }, 500); // مهلة قصيرة لتجهيز الـGPU/فك الضغط
-  },
-  (url, loaded, total) => { // onProgress
-    // التقدّم الحقيقي، بس من غير قفزة حادة
-    const percent = Math.round((loaded / total) * 100);
-    target = Math.max(target, Math.min(99, percent * 0.98));
-  }
-);
-
-
-
-
-const loader = new GLTFLoader(manager);
-
-
-
-
-const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-loader.setDRACOLoader(dracoLoader);
-
-
-
-
+// HDRI then GLTF model 
 new RGBELoader().load("./src/assets/img/MR_INT-005_WhiteNeons_NAD2K.hdr", (hdr) => {
   hdr.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = hdr;
 
-  // بعدين حمّل الموديل
   loader.load('./src/assets/3d/scene-draco.glb', (gltf) => {
     const car = gltf.scene;
-      car.position.y -= 0.09;
+    car.position.y -= 0.09;
     scene.add(car);
 
- 
+    //#region Paint Materials (collect & UI bindings)
+    //Paint Materials 
+    const paintMats = [];
+    car.traverse((obj) => {
+      if (!obj.isMesh || !obj.material) return;
+      const m = obj.material;
+      const name = (m.name || obj.name || "").toLowerCase();
+      const looksLikePaint =
+        name.includes("body") || name.includes("paint") || name.includes("carpaint");
 
+      if (m.metalness !== undefined && m.roughness !== undefined && looksLikePaint) {
+        m.userData._origColor = m.color.clone();
+        m.userData._origMetal = m.metalness;
+        m.userData._origRough = m.roughness;
+        m.userData._origClear = ("clearcoat" in m) ? m.clearcoat : undefined;
+        m.userData._origClearR = ("clearcoatRoughness" in m) ? m.clearcoatRoughness : undefined;
+        m.userData._origTransparent = m.transparent;
+        m.userData._origOpacity = m.opacity;
+        paintMats.push(m);
+      }
+    });
+    window.paintMats = paintMats;
 
-    // طلاء أخضر معدني للهيكل
-// مصفوفة نخزن فيها خامات الطلاء
-const paintMats = [];
-
-car.traverse((obj) => {
-  if (!obj.isMesh || !obj.material) return;
-  const m = obj.material;
-
-  const name = (m.name || obj.name || "").toLowerCase();
-  const looksLikePaint =
-    name.includes("body") || name.includes("paint") || name.includes("carpaint");
-
-  if (m.metalness !== undefined && m.roughness !== undefined && looksLikePaint) {
-    // خزّن القيم الأصلية للرجوع إليها
-    m.userData._origColor = m.color.clone();
-    m.userData._origMetal = m.metalness;
-    m.userData._origRough = m.roughness;
-    m.userData._origClear = ("clearcoat" in m) ? m.clearcoat : undefined;
-    m.userData._origClearR = ("clearcoatRoughness" in m) ? m.clearcoatRoughness : undefined;
-    m.userData._origTransparent = m.transparent;
-    m.userData._origOpacity = m.opacity;
-
-    paintMats.push(m);
-  }
-});
-
-window.paintMats = paintMats;   // ← هيك بتصير متاحة للـ demo
-
-
-// دالة لتعيين اللون مع دعم hex 6 أو 8 خانات
-function setHexWithAlpha(material, hex) {
-  if (hex.length === 9) { // #RRGGBBAA
-    const rgb = hex.slice(0, 7);
-    const alpha = parseInt(hex.slice(7, 9), 16) / 255;
-    material.color.set(rgb);
-    material.transparent = true;
-    material.opacity = alpha;
-  } else {
-    material.color.set(hex);
-    material.transparent = material.userData._origTransparent;
-    material.opacity = material.userData._origOpacity;
-  }
-  material.needsUpdate = true;
-}
-
-// اربط بالـ Color Picker في الـ HTML
-const colorInput = document.getElementById('paintColor');
-const resetBtn   = document.getElementById('resetPaint');
-
-// ✅ خلي الـ picker يطابق لون السيارة الحالي عند البداية
-if (colorInput && paintMats.length) {
-  const c = paintMats[0].color;
-  const toHex = v => ('0' + Math.round(v * 255).toString(16)).slice(-2);
-  colorInput.value = `#${toHex(c.r)}${toHex(c.g)}${toHex(c.b)}`;
-}
-
-// لما يغيّر المستخدم اللون
-colorInput?.addEventListener('input', () => {
-  const hex = colorInput.value; // يعطي #RRGGBB
-  paintMats.forEach((m) => {
-    setHexWithAlpha(m, hex);
-    m.metalness = 0.95;
-    m.roughness = 0.18;
-    if ("clearcoat" in m) {
-      m.clearcoat = 0.1;
-      m.clearcoatRoughness = 0.1;
+    function setHexWithAlpha(material, hex) {
+      if (hex.length === 9) {
+        const rgb = hex.slice(0, 7);
+        const alpha = parseInt(hex.slice(7, 9), 16) / 255;
+        material.color.set(rgb);
+        material.transparent = true;
+        material.opacity = alpha;
+      } else {
+        material.color.set(hex);
+        material.transparent = material.userData._origTransparent;
+        material.opacity = material.userData._origOpacity;
+      }
+      material.needsUpdate = true;
     }
-  });
-});
 
+    const colorInput = document.getElementById('paintColor');
+    const resetBtn   = document.getElementById('resetPaint');
 
-// زر لإرجاع الألوان الأصلية
-// دالة مساعدة لتحويل Color إلى #RRGGBB
-const toHex2 = v => ('0' + Math.round(v * 255).toString(16)).slice(-2);
-const colorToHex = (c) => `#${toHex2(c.r)}${toHex2(c.g)}${toHex2(c.b)}`;
+    if (colorInput && paintMats.length) {
+      const c = paintMats[0].color;
+      const toHex = v => ('0' + Math.round(v * 255).toString(16)).slice(-2);
+      colorInput.value = `#${toHex(c.r)}${toHex(c.g)}${toHex(c.b)}`;
+    }
 
-resetBtn?.addEventListener('click', () => {
-  paintMats.forEach((m) => {
-    if (m.userData._origColor) m.color.copy(m.userData._origColor);
-    if (m.userData._origMetal !== undefined)   m.metalness = m.userData._origMetal;
-    if (m.userData._origRough !== undefined)   m.roughness = m.userData._origRough;
-    if (m.userData._origClear !== undefined)   m.clearcoat = m.userData._origClear;
-    if (m.userData._origClearR !== undefined)  m.clearcoatRoughness = m.userData._origClearR;
-    m.transparent = m.userData._origTransparent;
-    m.opacity     = m.userData._origOpacity;
-    m.needsUpdate = true;
-  });
+    colorInput?.addEventListener('input', () => {
+      const hex = colorInput.value;
+      paintMats.forEach((m) => {
+        setHexWithAlpha(m, hex);
+        m.metalness = 0.95;
+        m.roughness = 0.18;
+        if ("clearcoat" in m) {
+          m.clearcoat = 0.1;
+          m.clearcoatRoughness = 0.1;
+        }
+      });
+    });
 
-  // ✅ حدّث صندوق اللون ليطابق اللون الأصلي
-  if (colorInput && paintMats[0]?.userData?._origColor) {
-    colorInput.value = colorToHex(paintMats[0].userData._origColor);
-  }
-});
+    const toHex2 = v => ('0' + Math.round(v * 255).toString(16)).slice(-2);
+    const colorToHex = (c) => `#${toHex2(c.r)}${toHex2(c.g)}${toHex2(c.b)}`;
 
-
-
-
-
-
-
-//end
+    resetBtn?.addEventListener('click', () => {
+      paintMats.forEach((m) => {
+        if (m.userData._origColor) m.color.copy(m.userData._origColor);
+        if (m.userData._origMetal !== undefined)   m.metalness = m.userData._origMetal;
+        if (m.userData._origRough !== undefined)   m.roughness = m.userData._origRough;
+        if (m.userData._origClear !== undefined)   m.clearcoat = m.userData._origClear;
+        if (m.userData._origClearR !== undefined)  m.clearcoatRoughness = m.userData._origClearR;
+        m.transparent = m.userData._origTransparent;
+        m.opacity     = m.userData._origOpacity;
+        m.needsUpdate = true;
+      });
+      if (colorInput && paintMats[0]?.userData?._origColor) {
+        colorInput.value = colorToHex(paintMats[0].userData._origColor);
+      }
+    });
+   
+    //#endregion
 
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
@@ -224,146 +231,37 @@ resetBtn?.addEventListener('click', () => {
   });
 });
 
+//#endregion
 
 
 
 
 
+//#region UI Pulses
 
-
-
-
-
-
-
-
-// إعداد الكاميرا
-const aspect1 = { width: window.innerWidth, height: window.innerHeight };
-const camera = new THREE.PerspectiveCamera(30, aspect1.width / aspect1.height, 0.1, 1000);
-camera.position.set(5.1, 4.6, 7.2);
-
-
-scene.add(camera);
-window.camera = camera; // ⬅️ هيك الكاميرا كمان متاحة
-
-// Renderer
-const canvas = document.querySelector(".canvas");
-const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-renderer.setSize(aspect1.width, aspect1.height);
-renderer.setPixelRatio(window.devicePixelRatio || 1);
-
-//
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 4;
-
-// OrbitControls
-const orbitControls = new OrbitControls(camera, renderer.domElement);
-orbitControls.minDistance = 4;   // أقرب مسافة للكاميرا من السيارة
-orbitControls.maxDistance = 20;  // أبعد مسافة للكاميرا
-
-orbitControls.enableDamping = true;
-window.orbitControls = orbitControls; // ⬅️ هيك  كمان متاحة
-
-//Limit
-orbitControls.minPolarAngle = 0;          // يسمح بالنظر من فوق
-orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;  // ما يخلي الكاميرا تنزل تحت خط الأفق (90°)
-
-// لو شاشة صغيرة (موبايل) استخدم القيم الجديدة
-if (window.innerWidth <= 768) {
-  camera.position.set(10.2, 9.2, 14.4);
-  orbitControls.target.set(0, 0, 0);
-  orbitControls.update();
-}
-
-
-
-// Grid
-const gridMain = new THREE.GridHelper(10, 10, 0x888888, 0x888888);  //(size, divisions, color1, color2);
-//scene.add(gridMain);
-//scene.fog = new THREE.FogExp2(0xaaaaaa, 0.04);
-
-
-
-// ربط عناصر الـ HTML
+//UI Pulses 
 const pulseEls = [
   { el: document.getElementById('pulse-point1'), mesh: pointMesh1 },
   { el: document.getElementById('pulse-point2'), mesh: pointMesh2 },
   { el: document.getElementById('pulse-point3'), mesh: pointMesh3 },
 ];
 
-// function to update one pulse element position from a mesh
 function updatePulseFor(el, mesh) {
   if (!el || !mesh) return;
-
-  // تحويل إحداثيات الكرة 3D إلى 2D
   const vector = mesh.getWorldPosition(new THREE.Vector3()).project(camera);
-
-  // vector.x/y in NDC (-1..1)
   const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
   const y = ( -vector.y * 0.5 + 0.5) * window.innerHeight;
-
-  // إذا كانت النقطة خارج مجال الرؤية (خلف الكاميرا أو بعيد جداً) نخفي العنصر
   if (vector.z < -1 || vector.z > 1) {
     el.style.display = 'none';
     return;
   }
-
   el.style.display = 'block';
   el.style.left = `${x}px`;
   el.style.top = `${y}px`;
 }
 
-// Loop
-function animate() {
-  orbitControls.update();
-  renderer.render(scene, camera);
-  requestAnimationFrame(animate);
- 
+//#endregion
 
-  // حدّث كل الـ pulse points
-  for (const item of pulseEls) {
-    updatePulseFor(item.el, item.mesh);
-  }
-}
-
-animate();
-
-
-
-
- renderer.setClearAlpha(0); // يترك خلفية الصفحة (CSS) تظهر
-
-// اجعل المشهد يعيد التحجيم تلقائياً عند تغيير حجم النافذة
-window.addEventListener('resize', () => {
-  // حدّث أبعاد الكاميرا
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-
-  // حدّث أبعاد الـ renderer
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(window.devicePixelRatio || 1);
-});
-
-
-
-
-//only for get camera info
-function logCameraInfo() {
-  console.log("Keyframe:", {
-    pos: {
-      x: camera.position.x,
-      y: camera.position.y,
-      z: camera.position.z
-    },
-    target: {
-      x: orbitControls.target.x,
-      y: orbitControls.target.y,
-      z: orbitControls.target.z
-    }
-  });
-}
-window.logCameraInfo = logCameraInfo;
 
 
 //#region Popup 
@@ -399,8 +297,7 @@ const popupContent = document.getElementById('popup-content');
 const popupImage = document.getElementById('popup-image');
 const closeBtn = popup.querySelector('.close-btn');
 
-// Clamp helper: keeps value within [min, max] range
-const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
 
 // Show popup at given (x, y) without visual jump/glitch
 async function showPopupAt(x, y, data) {
@@ -533,6 +430,49 @@ window.addEventListener('keydown', (e) => {
 
 
 //#endregion
+
+
+
+
+//#region Main Loop
+
+// Main Loop 
+function animate() {
+  orbitControls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+  for (const item of pulseEls) {
+    updatePulseFor(item.el, item.mesh);
+  }
+}
+animate();
+
+//#endregion
+
+
+//#region Misc / Resize / Debug
+
+//Misc / Resize / Debug 
+renderer.setClearAlpha(0);
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
+});
+
+function logCameraInfo() {
+  console.log("Keyframe:", {
+    pos: { x: camera.position.x, y: camera.position.y, z: camera.position.z },
+    target: { x: orbitControls.target.x, y: orbitControls.target.y, z: orbitControls.target.z }
+  });
+}
+window.logCameraInfo = logCameraInfo;
+
+//#endregion
+
+
 
 
 //#region btn
