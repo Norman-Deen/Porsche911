@@ -12,6 +12,9 @@ import { playCameraMove,playDemoCamera,bootAudio } from './animate.js';
 const scene = new THREE.Scene();
 window.scene = scene;
 
+// ---- DRACO ----
+const loadingScreen = document.getElementById('loading-screen');
+const loadingText = document.getElementById('loading-text');
 
 //#region Points 
 // Point 1
@@ -41,9 +44,7 @@ pointMesh3.visible = false;
 //#endregion
 
 
-// ---- DRACO ----
-const loadingScreen = document.getElementById('loading-screen');
-const loadingText = document.getElementById('loading-text');
+
 
 
 // ---- Smooth Loader (start immediately) ----
@@ -217,8 +218,6 @@ resetBtn?.addEventListener('click', () => {
 
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
         if (child.material) child.material.needsUpdate = true;
       }
     });
@@ -367,273 +366,238 @@ function logCameraInfo() {
 window.logCameraInfo = logCameraInfo;
 
 
+//#region Popup 
 
-///////////////////////////////////////////
+const DEFAULT_IMAGE = "./src/assets/img/911ClassicGreen.JPG"; //loading img
 
-
-
-
-
-// -------- Popup JS (final) --------
-
-// صورة افتراضية واحدة
-const DEFAULT_IMAGE = "./src/assets/img/911ClassicGreen.JPG";
-
-// نصوص + صور كل نقطة
-const POINTS_DATA = {
+const POINTS_DATA = {  //Popup 01
   'pulse-point1': {
     text: `1975 Porsche 911: Part of the G-Series with iconic impact bumpers. 
 Powered by 2.7L flat-six engines (150–175 hp), or up to 210 hp in the Carrera 2.7.
 First year of the legendary 911 Turbo (930) with 260 hp.`,
-    image: './src/assets/img/911ClassicGreen.JPG'          // ← صورة عامة
+    image: './src/assets/img/911ClassicGreen.JPG'          
   },
 
-  'pulse-point2': {
+  'pulse-point2': {  //Popup 02
     text: `1975 Porsche 911 engine: 2.7-liter air-cooled flat-six,
 producing around 165–175 hp in standard models, and up to 210 hp in the Carrera 2.7.
 Equipped with Bosch K-Jetronic fuel injection and paired with a 5-speed manual gearbox.`,
-    image: './src/assets/img/911ClassicGreenEngine.jpg'        // ← صورة المحرك
+    image: './src/assets/img/911ClassicGreenEngine.jpg'        
   },
 
-  'pulse-point3': {
+  'pulse-point3': {  //Popup 03
     text: `The Porsche logo, introduced in 1952, combines Stuttgart’s horse
 emblem with Württemberg’s state crest. It symbolizes the brand’s German roots and racing spirit.`,
-    image: './src/assets/img/911ClassicGreenLogo.jpg'      // ← صورة الشعار
+    image: './src/assets/img/911ClassicGreenLogo.jpg'      
   }
 };
 
 
-// fallback
-const facts = [
-  "The Porsche 911 is renowned for its rear-engine layout.",
-  "First introduced in 1964, the 911 became an icon of performance.",
-  "Modern 911s use twin-turbo flat-six engines.",
-  "The 911 balances daily usability with track capability.",
-  "GT3 variants are naturally aspirated and rev to the moon."
-];
-const randomFact = () => facts[Math.floor(Math.random() * facts.length)];
-
-// عناصر البوب-أب
+// Popup DOM elements
 const popup = document.getElementById('popup');
 const popupContent = document.getElementById('popup-content');
 const popupImage = document.getElementById('popup-image');
 const closeBtn = popup.querySelector('.close-btn');
 
-// مساعد: انتظر فريم رسم واحد
-const nextFrame = () => new Promise(r => requestAnimationFrame(r));
-
-// إظهار البوب-أب عند (x,y) بدون قفزة
-// clamp مساعد
+// Clamp helper: keeps value within [min, max] range
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
-
-
-
-/////////////////////////////////////////////////////
-// إظهار البوب-أب متموضع مسبقًا بدون أي قفزة/تصحيح بصري
+// Show popup at given (x, y) without visual jump/glitch
 async function showPopupAt(x, y, data) {
-  const text = data?.text ?? randomFact();
- popupContent.innerHTML = text;
+  const text = data?.text ?? ""; 
+  popupContent.innerHTML = text;
 
 
-  // --- (A) جهّز الصورة أولاً ---
-  if (popupImage) {
-    const imgSrc = data?.image || DEFAULT_IMAGE;
-    const srcChanged = popupImage.getAttribute('src') !== imgSrc;
 
-    popupImage.style.display = 'block';
-    // ثبّت الحجم لتفادي تغيّر الارتفاع لاحقًا (عدّل القياس حسب تصميمك)
-    popupImage.style.maxWidth = 'auto';
-    popupImage.style.height = 'auto';
-    popupImage.loading = 'eager';
-    popupImage.decoding = 'sync';
+// --- (A) Prepare image first ---
+if (popupImage) {
+  const imgSrc = data?.image || DEFAULT_IMAGE;
+  const srcChanged = popupImage.getAttribute('src') !== imgSrc;
 
-    if (srcChanged) popupImage.src = imgSrc;
+  popupImage.style.display = 'block';
 
-    // انتظر جاهزية الصورة إن كانت تغيّرت
-    try {
-      if (srcChanged && popupImage.decode) await popupImage.decode();
-    } catch (_) { /* تجاهل */ }
-  }
+  if (srcChanged) popupImage.src = imgSrc;
 
-  // --- (B) حضّر للقياس بدون ظهور/انتقالات ---
-  const prevTransition = popup.style.transition;
-  popup.style.transition = 'none';
-  popup.style.visibility = 'hidden';
-  popup.style.pointerEvents = 'none';
-  popup.style.display = 'flex';
-  popup.style.left = '-99999px';
-  popup.style.top  = '-99999px';
-  popup.style.transform = 'none';
-  popup.removeAttribute('data-placement');
-  popup.style.setProperty('--arrow-x', '50%');
-
-  // فريم للمتصفح ليحسِب الأبعاد
-  await new Promise(r => requestAnimationFrame(r));
-  let rect = popup.getBoundingClientRect();
-  const margin = 12;
-
-  // --- (C) حدّد الاتجاه مبدئيًا استنادًا لارتفاع فعلي بعد الصورة ---
-  const placeBottom = (y - (rect.height + 16) < margin);
-  popup.dataset.placement = placeBottom ? 'bottom' : 'top';
-
-  // ملاحظة مهمة: تغيير data-placement قد يغيّر حدود/سهم الكارد → أعد القياس
-  await new Promise(r => requestAnimationFrame(r));
-  rect = popup.getBoundingClientRect();
-
-  // --- (D) احسب الإحداثيات النهائية (كلَمب كامل) ---
-  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
-
-  // X مركز مكلَمب
-  const idealLeft = x - rect.width / 2;
-  const clampedLeft = clamp(idealLeft, margin, window.innerWidth - rect.width - margin);
-  const leftCenter = Math.round(clampedLeft + rect.width / 2);
-
-  // السهم يتبع النقطة حتى لو انضغطنا عند الحافة
-  const arrowPercent = clamp(((x - clampedLeft) / rect.width) * 100, 8, 92);
-  popup.style.setProperty('--arrow-x', `${arrowPercent}%`);
-
-  // Y نهائي
-  let top = placeBottom ? (y + 20) : (y - 16);
-  if (placeBottom) {
-    const maxTop = window.innerHeight - rect.height - margin;
-    top = clamp(top, margin, maxTop);
-  } else {
-    top = Math.max(top, rect.height + margin);
-  }
-  top = Math.round(top);
-
-  // --- (E) ثبّت الموضع النهائي ثم اظهر فورًا بدون أي تصحيح لاحق ---
-  popup.style.left = `${leftCenter}px`;
-  popup.style.top  = `${top}px`;
-  popup.style.transform = placeBottom ? 'translate(-50%, 0%)' : 'translate(-50%, -100%)';
-  popup.style.setProperty('--origin-y', placeBottom ? '0%' : '100%');
-
-  // reflow ثم اظهر
-  void popup.offsetWidth;
-  popup.style.visibility = 'visible';
-  popup.style.pointerEvents = '';
-  popup.style.transition = prevTransition || '';
+  // Wait until image is ready (only if source changed)
+  try {
+    if (srcChanged && popupImage.decode) await popupImage.decode();
+  } catch (_) { /* ignore decode errors */ }
 }
 
+// --- (B) Prepare popup for measurement (off-screen, no transitions) ---
+const prevTransition = popup.style.transition;
+popup.style.transition = 'none';       // disable CSS animations
+popup.style.visibility = 'hidden';     // hide visually
+popup.style.pointerEvents = 'none';    // disable interactions
+popup.style.display = 'flex';          // ensure layout is active
+popup.style.left = '-99999px';         // move off-screen
+popup.style.top  = '-99999px';
+popup.style.transform = 'none';        // reset transform
+popup.removeAttribute('data-placement'); // clear previous placement
+popup.style.setProperty('--arrow-x', '50%'); // reset arrow position
 
 
+// --- (C) Force browser to calculate popup size ---
+await new Promise(r => requestAnimationFrame(r)); // wait 1 frame for layout
+let rect = popup.getBoundingClientRect();          // measure popup dimensions
+const margin = 12;                                 // safe margin from edges
 
 
-// إغلاق
+// --- (C) Decide placement (top or bottom) based on available space ---
+const placeBottom = (y - (rect.height + 16) < margin);
+popup.dataset.placement = placeBottom ? 'bottom' : 'top';
+
+// NOTE: changing data-placement may affect popup size (CSS arrow/border)
+// → measure again after browser applies styles
+await new Promise(r => requestAnimationFrame(r));
+rect = popup.getBoundingClientRect();
+
+// --- (D) Final position calculation ---
+// X (centered, clamped to viewport)
+const idealLeft = x - rect.width / 2;
+const clampedLeft = clamp(idealLeft, margin, window.innerWidth - rect.width - margin);
+const leftCenter = Math.round(clampedLeft + rect.width / 2);
+
+// Arrow follows the click point (clamped to 8–92% range)
+const arrowPercent = clamp(((x - clampedLeft) / rect.width) * 100, 8, 92);
+popup.style.setProperty('--arrow-x', `${arrowPercent}%`);
+
+// Y (above or below depending on placement)
+let top = placeBottom ? (y + 20) : (y - 16);
+if (placeBottom) {
+  const maxTop = window.innerHeight - rect.height - margin;
+  top = clamp(top, margin, maxTop);
+} else {
+  top = Math.max(top, rect.height + margin);
+}
+top = Math.round(top);
+
+// --- (E) Apply final position & reveal popup ---
+popup.style.left = `${leftCenter}px`;
+popup.style.top  = `${top}px`;
+popup.style.transform = placeBottom ? 'translate(-50%, 0%)' : 'translate(-50%, -100%)';
+popup.style.setProperty('--origin-y', placeBottom ? '0%' : '100%');
+
+// Force reflow, then reveal with transitions enabled
+void popup.offsetWidth;
+popup.style.visibility = 'visible';
+popup.style.pointerEvents = '';
+popup.style.transition = prevTransition || '';
+
+}
+
+// --- Popup helpers ---
+const isPopupOpen = () => popup.style.display !== 'none';
+
+// Close popup
 function hidePopup() {
   popup.style.display = 'none';
-  popup.style.visibility = ''; // reset
+  popup.style.visibility = '';      // reset to CSS defaults
+  popup.style.pointerEvents = '';
+  popup.style.transition = '';
+  popup.style.left = '';
+  popup.style.top = '';
+  popup.style.transform = '';
+  popup.removeAttribute('data-placement');
 }
 
-// زر الإغلاق
+// Close button
 if (closeBtn) {
-  closeBtn.addEventListener('click', (e) => { e.stopPropagation(); hidePopup(); });
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hidePopup();
+  });
 }
 
-// ربط الأحداث بالنقاط
+// Bind pulse points
 pulseEls.forEach(({ el }) => {
   el.addEventListener('click', (e) => {
     e.stopPropagation();
     const r = el.getBoundingClientRect();
-    const x = r.left + r.width  / 2;
-    const y = r.top  + r.height / 2;   // ← بدل r.top فقط
+    const x = r.left + r.width  / 2;  // center X
+    const y = r.top  + r.height / 2;  // center Y
     const data = POINTS_DATA[el.id] || null;
     showPopupAt(x, y, data);
   });
 });
 
-
-// إغلاق عند الضغط خارج
+// Close on outside click
 document.addEventListener('click', (e) => {
-  if (popup.style.display !== 'none' && !popup.contains(e.target)) hidePopup();
+  if (isPopupOpen() && !popup.contains(e.target)) hidePopup();
 });
 
-// إغلاق عند ESC
-window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopup(); });
-
-// -------- /Popup JS --------
-
-
+// Close on ESC
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') hidePopup();
+});
 
 
+//#endregion
 
 
+//#region btn
 
-
-
-
-
-/////btn
-
-//startBtn
-const startBtn = document.getElementById("startBtn");
+// UI refs
+const startBtn   = document.getElementById("startBtn");
 const controlsDiv = document.querySelector(".controls");
 
-// Wake Lock لمنع خمول الشاشة (موبايل)
+// Wake Lock (prevent mobile screen sleep)
 let wakeLock = null;
 async function requestWakeLock() {
   try {
     wakeLock = await navigator.wakeLock.request("screen");
+    // Info only (optional)
     wakeLock.addEventListener("release", () => {
       console.log("Wake Lock released");
     });
   } catch (err) {
-    console.error(err);
+    console.error("Wake Lock error:", err);
   }
 }
 
-// listener: لما ترجع للتبويب → يعيد تشغيل Wake Lock
+// Reacquire Wake Lock when tab becomes visible again
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && "wakeLock" in navigator) {
     requestWakeLock();
   }
 });
 
+// Start button: gate audio/autoplay + reveal controls
 if (startBtn) {
   startBtn.addEventListener("click", async () => {
-    await bootAudio();                      // الصوت هنا
-    loadingScreen.style.display = "none";   // أخفِ شاشة التحميل
-    controlsDiv.style.display = "flex";     // ← أظهر الأزرار هون فقط
-    document.getElementById("startAnimBtn")?.click(); // ابدأ الفيلم فورًا
+    await bootAudio();                    // user-gesture: comply with autoplay policies
+    loadingScreen.style.display = "none"; // hide loading UI
+    controlsDiv.style.display = "flex";   // show controls only after start
+    document.getElementById("startAnimBtn")?.click(); // auto-start intro
 
-    // ✅ اطلب Wake Lock بعد أول تفاعل
+    // Request Wake Lock after first user interaction
     if ("wakeLock" in navigator) {
       requestWakeLock();
     }
   });
 }
 
-
-
-
-
-
 // === About popup content ===
 const ABOUT_DATA = {
   text: `
     <strong>Porsche 911 Three.js Demo</strong><br><br>
-
     Developed by <a href="https://pure-art.co" target="_blank" rel="noopener noreferrer">Pure-Art.co</a><br><br>
-
     Vehicle design © Porsche AG<br>
     3D model by Lionsharp<br>
     License: CC BY 4.0<br><br>
-
     Background music: "The Last Point (Beat Electronic Digital)" © Pixabay<br>
-    
   `,
   image: './src/assets/img/Loading.jpg'
 };
 
-
-
-// زر "About" → افتح نفس نافذة الـpopup في وسط الشاشة
+// "About" button: reuse same popup centered on screen
 document.getElementById('abouttn')?.addEventListener('click', (e) => {
   e.stopPropagation();
   const x = Math.round(window.innerWidth / 2);
-  const y = Math.round(window.innerHeight * 0.2); // مسافة بسيطة من الأعلى
+  const y = Math.round(window.innerHeight * 0.2); // small offset from top
   showPopupAt(x, y, ABOUT_DATA);
 });
+
+//#endregion
 
 
