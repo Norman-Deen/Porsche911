@@ -614,22 +614,20 @@ if (startBtn) {
 // === About popup content ===
 const ABOUT_DATA = {
   text: `
-    <strong>Porsche 911 WebGL Demo</strong><br>
-    Created with Three.js + GSAP<br>
-    HDRI reflections, tone mapping, intro & demo camera cuts<br><br>
+    <strong>Porsche 911 Three.js Demo</strong><br><br>
+
+    Developed by <a href="https://pure-art.co" target="_blank" rel="noopener noreferrer">Pure-Art.co</a><br><br>
 
     Vehicle design © Porsche AG<br>
     3D model by Lionsharp<br>
     License: CC BY 4.0<br><br>
 
-    Background music: "The Last Point (Beat Electronic Digital)"<br>
-    © Pixabay, Free for commercial use<br><br>
-
-    Developed by Pa<br>
-    <a href="https://pure-art.co" target="_blank" rel="noopener noreferrer">Pure-art.co</a>
+    Background music: "The Last Point (Beat Electronic Digital)" © Pixabay<br>
+    
   `,
   image: './src/assets/img/Loading.jpg'
 };
+
 
 
 // زر "About" → افتح نفس نافذة الـpopup في وسط الشاشة
