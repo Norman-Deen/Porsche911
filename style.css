@@ -1,4 +1,4 @@
-/* ====Global Reset & Page BG ======= */
+/* ====Global Reset & Page BG & Colors======= */
  
 *{ margin:0; padding:0; }
 body{ background-color: rgb(178,178,178); }
@@ -10,6 +10,11 @@ body{ background-color: rgb(178,178,178); }
   --ui-border-strong: rgba(255,255,255,0.35);
   --card-bg: rgba(255,255,255,0.86);
   --card-border: rgba(0,0,0,0.12);
+  --text-light: #fff;
+  --text-light-muted: #ffffffc1;
+  --text-dark: #111;
+  --popup-close-bg: rgba(255,255,255,0.9);
+  --popup-close-hover: #fff;
 }
 
 
@@ -33,7 +38,7 @@ body{ background-color: rgb(178,178,178); }
   top: 70%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #000;
+  color: var(--text-dark);
   font-size: 26px;
   font-weight: 500;
   background: transparent;
@@ -49,8 +54,8 @@ body{ background-color: rgb(178,178,178); }
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
-  background: rgba(0,0,0,0.85);
-  color: #fff;
+  background: var(--ui-bg);
+  color: var(--text-light);
   font-size: 16px;
   font-family: 'Orbitron', sans-serif;
   cursor: pointer;
@@ -59,7 +64,7 @@ body{ background-color: rgb(178,178,178); }
   z-index: 2100;            
 }
 #startBtn:hover {
-  background: rgba(0,0,0,0.7);
+  background: var(--ui-hover);
   transform: translate(-50%, -50%) scale(1.05);
 }
 /* Subtle “breathing” animation to draw attention */
@@ -91,7 +96,7 @@ body{ background-color: rgb(178,178,178); }
   border: 1px solid var(--ui-border);
   background: var(--ui-bg);
   border-radius: 5px;
-  color: #ffffffc1;
+  color: var(--text-light-muted);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
@@ -119,7 +124,7 @@ body{ background-color: rgb(178,178,178); }
 .controls .btn:focus { outline: none; }
 /* Keep button stable when focused but not hovered */
 .controls .btn:focus:not(:hover) {
-  background: rgba(0,0,0,0.75);
+  background: var(--ui-bg);
   transform: none;
 }
 
@@ -133,7 +138,7 @@ body{ background-color: rgb(178,178,178); }
   border: 1px solid var(--ui-border);
   border-radius: 10px;
   background: var(--ui-bg);
-  color: #fff;
+  color: var(--text-light);
   font-family: 'Orbitron', sans-serif;
   font-size: 13px;
   cursor: pointer;
@@ -157,7 +162,7 @@ body{ background-color: rgb(178,178,178); }
   border: none;
   border-radius: 6px;
   background: rgba(255,255,255,0.15);
-  color: #fff;
+  color: var(--text-light);
   font-size: 16px;
   cursor: pointer;
   transition: background 0.2s;
@@ -228,7 +233,7 @@ body.ui-hide-pulses .pulse { display: none !important; }
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--card-border);
   box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-  color: #111;
+  color: var(--text-dark);
   line-height: 1.45;
   font-size: 15px;
   z-index: 1000;
@@ -267,15 +272,15 @@ body.ui-hide-pulses .pulse { display: none !important; }
   display: grid;
   place-items: center;
   border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--card-border);
+  background: var(--popup-close-bg);
   cursor: pointer;
   font-weight: 700;
   line-height: 1;
-  color: #333;
+  color: var(--text-dark);
   transition: transform .08s ease, background .12s ease;
 }
-.popup .close-btn:hover { transform: scale(1.06); background: #fff; }
+.popup .close-btn:hover { transform: scale(1.06); background: var(--popup-close-hover); }
 
 /* Image keeps aspect without distortion */
 .popup-image {
@@ -305,7 +310,7 @@ body.ui-hide-pulses .pulse { display: none !important; }
   font-family: 'Audiowide', sans-serif;  
   font-size: 15px;
   line-height: 1.5;
-  color: #111;
+  color: var(--text-dark);
 }
 
 
