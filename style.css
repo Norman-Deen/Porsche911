@@ -52,6 +52,14 @@ body{ background-color: rgb(178,178,178); }
   background: rgba(0,0,0,0.7);
   transform: translate(-50%, -50%) scale(1.05);
 }
+#startBtn {
+  animation: pulseScale 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseScale {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to   { transform: translate(-50%, -50%) scale(1.08); }
+}
 
 
 .controls {
