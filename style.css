@@ -318,17 +318,7 @@ body.ui-hide-pulses .pulse { display: none !important; }
   color: #111;
 }
 
-/* =========================
-   Extra Interaction Polishing
-   ========================= */
-/* NOTE: Duplication with earlier :hover block; kept for current behavior.
-   TODO: You can merge the two hover rules into one to DRY. */
-.controls .btn:hover:not(:focus):not(:active),
-.color-picker:hover:not(:focus):not(:active) {
-  background: rgba(118, 118, 118, 0.9);
-  border-color: rgba(255,255,255,0.35);
-  transform: translateY(-1px);
-}
+
 .controls .btn:active { transform: none; }
 .controls .btn:focus { outline: none; background: rgba(0,0,0,0.75); transform: none; }
 .controls .btn:focus-visible { outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
