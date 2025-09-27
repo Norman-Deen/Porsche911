@@ -1,8 +1,6 @@
-/* ====Global Reset & Page BG & Colors======= */
- 
+/* Reset + theme vars */
 *{ margin:0; padding:0; }
 body{ background-color: var(--page-bg); }
-
 :root{
   --page-bg: rgb(178,178,178);
   --ui-bg: rgba(0,0,0,0.75);
@@ -16,364 +14,185 @@ body{ background-color: var(--page-bg); }
   --text-dark: #111;
   --popup-close-bg: rgba(255,255,255,0.9);
   --popup-close-hover: #fff;
-
   --surface-light: #fff;
   --backdrop-dark: #000;
 }
 
-
-
-/* ===========Loading Screen (full-page)========== */
+/* Loading overlay */
 #loading-screen {
   position: fixed;
   inset: 0;
-  background: var(--surface-light); 
+  background: var(--surface-light);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
 }
-#loading-screen img {
-  max-width: 100vh;  
-  position: relative;
-}
-#loading-text {
-  position: absolute; 
-  top: 70%;
-  left: 50%;
+#loading-screen img { max-width: 100vh; position: relative; }
+#loading-text{
+  position: absolute; top: 70%; left: 50%;
   transform: translate(-50%, -50%);
-  color: var(--text-dark);
-  font-size: 26px;
-  font-weight: 500;
-  background: transparent;
-  font-family: 'Orbitron', sans-serif; 
+  color: var(--text-dark); font-size: 26px; font-weight: 500;
+  background: transparent; font-family: 'Orbitron', sans-serif;
 }
 
-/* ==========Start Button (CTA)========== */
-#startBtn {
-  position: absolute;
-  top: 73%;                 
-  left: 50%;
+/* Start CTA (appears after load) */
+#startBtn{
+  position: absolute; top: 73%; left: 50%;
   transform: translate(-50%, -50%);
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  background: var(--ui-bg);
-  color: var(--text-light);
-  font-size: 16px;
-  font-family: 'Orbitron', sans-serif;
-  cursor: pointer;
-  display: none;            
-  transition: background 0.2s, transform 0.15s;
-  z-index: 2100;            
+  padding: 12px 24px; border: none; border-radius: 8px;
+  background: var(--ui-bg); color: var(--text-light); font-size: 16px;
+  font-family: 'Orbitron', sans-serif; cursor: pointer;
+  display: none; transition: background .2s, transform .15s; z-index: 2100;
 }
-#startBtn:hover {
-  background: var(--ui-hover);
-  transform: translate(-50%, -50%) scale(1.05);
+#startBtn:hover{ background: var(--ui-hover); transform: translate(-50%, -50%) scale(1.05); }
+/* Gentle pulse to attract tap */
+#startBtn{ animation: pulseScale 1.2s ease-in-out infinite alternate; }
+@keyframes pulseScale{ from{ transform: translate(-50%, -50%) scale(1); } to{ transform: translate(-50%, -50%) scale(1.08); } }
+
+/* Controls bar (top-right) */
+.controls{
+  position: fixed; top: 20px; right: 20px;
+  flex-wrap: wrap; gap: 8px 10px; z-index: 10000;
+  background: transparent; align-items: center; display: none;
 }
-/* Subtle “breathing” animation to draw attention */
-#startBtn { animation: pulseScale 1.2s ease-in-out infinite alternate; }
-@keyframes pulseScale {
-  from { transform: translate(-50%, -50%) scale(1); }
-  to   { transform: translate(-50%, -50%) scale(1.08); }
+.controls .btn{
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 20px; border: 1px solid var(--ui-border);
+  background: var(--ui-bg); border-radius: 5px; color: var(--text-light-muted);
+  font-size: 16px; line-height: 1; cursor: pointer;
+  transition: transform .1s, background .15s, border-color .15s; backdrop-filter: blur(6px);
+}
+/* Hover/focus tuning to avoid stuck states */
+.controls .btn:hover, .color-picker:hover{
+  background: var(--ui-hover); border-color: var(--ui-border-strong); transform: translateY(-1px);
+}
+.controls .btn:focus:not(:hover), .color-picker:focus:not(:hover){ background: initial; border-color: initial; transform: none; }
+.controls .btn:focus-visible{ outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
+.controls .btn:focus{ outline: none; }
+.controls .btn:focus:not(:hover){ background: var(--ui-bg); transform: none; }
+
+/* Color picker wrapper + native input */
+.color-picker{
+  display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; height: 34px;
+  border: 1px solid var(--ui-border); border-radius: 10px; background: var(--ui-bg);
+  color: var(--text-light); font-family: 'Orbitron', sans-serif; font-size: 13px; cursor: pointer;
+}
+.color-picker input[type="color"]{
+  width: 22px; height: 22px; border: none; border-radius: 4px; background: transparent; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+}
+.color-picker input[type="color"]::-webkit-color-swatch-wrapper{ padding: 0; }
+.color-picker input[type="color"]::-webkit-color-swatch{ border: none; border-radius: 4px; }
+/* Inline reset */
+.color-picker .reset-inside{
+  margin-left: 6px; padding: 2px 6px; border: none; border-radius: 6px;
+  background: rgba(255,255,255,0.15); color: var(--text-light); font-size: 16px; cursor: pointer; transition: background .2s;
+}
+.color-picker .reset-inside:hover{ background: rgba(255,255,255,0.3); }
+
+/* Mode-based UI visibility */
+body.demo-mode .controls .btn:not(#demoBtn){ display: none !important; }
+body.intro-mode .controls .btn:not(#startAnimBtn){ display: none !important; }
+
+/* Global fade (driven by GSAP) */
+#fade{
+  position: fixed; inset: 0; background: var(--backdrop-dark);
+  opacity: 0; pointer-events: none; z-index: 1800;
 }
 
-/* ======== Top-right Controls (UI bar)========== */
-  
-.controls {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  flex-wrap: wrap;         
-  gap: 8px 10px;
-  z-index: 10000;
-  background: transparent;
-  align-items: center;
-  display: none;           
-}
-.controls .btn {
-  display: inline-flex;    
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  padding: 0 20px;
-  border: 1px solid var(--ui-border);
-  background: var(--ui-bg);
-  border-radius: 5px;
-  color: var(--text-light-muted);
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  transition: transform .1s ease, background .15s ease, border-color .15s ease;
-  backdrop-filter: blur(6px);
-}
-/* Hover/Focus states (shared with color-picker) */
-.controls .btn:hover,
-.color-picker:hover {
-  background: var(--ui-hover);
-  border-color: var(--ui-border-strong);
-  transform: translateY(-1px);
-}
-/* Remove hover styles on keyboard-only focus to avoid “stuck hover” look */
-.controls .btn:focus:not(:hover),
-.color-picker:focus:not(:hover) {
-  background: initial;
-  border-color: initial;
-  transform: none;
-}
-.controls .btn:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.45);
-  outline-offset: 2px;
-}
-.controls .btn:focus { outline: none; }
-/* Keep button stable when focused but not hovered */
-.controls .btn:focus:not(:hover) {
-  background: var(--ui-bg);
-  transform: none;
-}
+/* WebGL canvas */
+.canvas{ position: fixed; left: 0; top: 0; }
 
-/* ========Color Picker (label wrapper)=============== */
-.color-picker {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 10px;
-  height: 34px;
-  border: 1px solid var(--ui-border);
-  border-radius: 10px;
-  background: var(--ui-bg);
-  color: var(--text-light);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 13px;
-  cursor: pointer;
+/* Pulsing hotspots (DOM overlay) */
+.pulse{
+  position: fixed; transform: translate(-50%, -50%);
+  z-index: 999; display: none; cursor: pointer; background: transparent;
 }
-.color-picker input[type="color"] {
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.color-picker input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-.color-picker input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
-/* Small inline reset button */
-.color-picker .reset-inside {
-  margin-left: 6px;
-  padding: 2px 6px;
-  border: none;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.15);
-  color: var(--text-light);
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.color-picker .reset-inside:hover { background: rgba(255,255,255,0.3); }
+.pulse img{ width: 28px; height: 28px; display: block; animation: pulse 1s infinite alternate; }
+@keyframes pulse{ from{ transform: scale(1); } to{ transform: scale(1.3); } }
+/* Hide during intro/demo */
+body.ui-hide-pulses .pulse{ display: none !important; }
 
-/* ==========Mode-based UI Hiding (Intro/Demo modes controlled via body classes)=========== */
-body.demo-mode .controls .btn:not(#demoBtn) { display: none !important; }
-body.intro-mode .controls .btn:not(#startAnimBtn) { display: none !important; }
-
-
-/* ===========Global Fade Layer (GSAP drives opacity)=================== */
-#fade {
-  position: fixed;
-  inset: 0;
-  background: var(--backdrop-dark); 
-  opacity: 0;
-  pointer-events: none;
-  z-index: 1800;
-}
-
-/* ============WebGL Canvas (fullscreen)================= */
-.canvas{
-  position: fixed;
-  left: 0;
-  top: 0;
-}
-
-/* ==============Pulsing Hotspots (DOM overlay)============ */
-.pulse {
-  position: fixed;
-  transform: translate(-50%, -50%);
-  z-index: 999;
-  display: none;          
-  cursor: pointer;
-  background: transparent;
-}
-.pulse img {
-  width: 28px; height: 28px;
-  display: block;
-  animation: pulse 1s infinite alternate; 
-}
-@keyframes pulse {
-  from { transform: scale(1); }
-  to   { transform: scale(1.3); }
-}
-/* Hide pulses during intro/demo sequences */
-body.ui-hide-pulses .pulse { display: none !important; }
-
-/* =============Popup Card (image + text)============= */
-.popup {
-  position: fixed;
-  left: 0;                      
-  top: 0;                        
-  transform: translate(-50%, -100%); 
-  display: none;
-
+/* Popup card */
+.popup{
+  position: fixed; left: 0; top: 0; transform: translate(-50%, -100%); display: none;
   /* Sizing */
-  width: clamp(260px, 86vw, 360px);
-  max-height: none;              
-  overflow: visible;
-
-  /* Look & feel */
-  padding: 14px 16px 18px;
-  border-radius: 14px;
-  background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--card-border);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-  color: var(--text-dark);
-  line-height: 1.45;
-  font-size: 15px;
-  z-index: 1000;
-  user-select: text;
-
+  width: clamp(260px, 86vw, 360px); max-height: none; overflow: visible;
+  /* Look */
+  padding: 14px 16px 18px; border-radius: 14px; background: var(--card-bg);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  color: var(--text-dark); line-height: 1.45; font-size: 15px; z-index: 1000; user-select: text;
   /* Layout */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  /* Transitions (avoid animating left/top for stability) */
+  display: flex; flex-direction: column; gap: 10px;
+  /* Transitions */
   transition: opacity .18s ease, transform .18s ease;
-
-  /* Scale/transform origin follows arrow position (set via CSS var) */
+  /* Transform origin follows arrow (set via CSS var) */
   transform-origin: var(--arrow-x, 50%) var(--origin-y, 100%);
-
-  /* Performance hint */
   will-change: transform, opacity;
 }
-/* Optional in case you re-enable entry animation */
-@keyframes pop-in-stable {
-  from { opacity: 0; transform: translate(-50%, -100%) scale(0.98); }
-  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
-}
-/* Disable animation while measuring (JS toggles this class) */
-.popup.appearing { animation: none !important; }
+@keyframes pop-in-stable{ from{ opacity:0; transform: translate(-50%, -100%) scale(.98);} to{ opacity:1; transform: translate(-50%, -100%) scale(1);} }
+.popup.appearing{ animation: none !important; }
 
-/* Close button (accessible target size) */
-.popup .close-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 34px;
-  height: 34px;
-  font-size: 24px;       
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  border: 1px solid var(--card-border);
-  background: var(--popup-close-bg);
-  cursor: pointer;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--text-dark);
+/* Popup close button */
+.popup .close-btn{
+  position: absolute; top: 8px; right: 8px;
+  width: 34px; height: 34px; font-size: 24px; display: grid; place-items: center;
+  border-radius: 999px; border: 1px solid var(--card-border); background: var(--popup-close-bg);
+  cursor: pointer; font-weight: 700; line-height: 1; color: var(--text-dark);
   transition: transform .08s ease, background .12s ease;
 }
-.popup .close-btn:hover { transform: scale(1.06); background: var(--popup-close-hover); }
+.popup .close-btn:hover{ transform: scale(1.06); background: var(--popup-close-hover); }
 
-/* Image keeps aspect without distortion */
-.popup-image {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  object-fit: contain; 
+/* Popup media/content */
+.popup-image{
+  display: block; max-width: 100%; height: auto; border-radius: 8px; object-fit: contain;
+}
+#popup-content{
+  flex: 1 1 auto; overflow: auto; padding: 8px 4px; background: transparent;
+}
+@keyframes pop-in{ from{ opacity:0; transform: translate(-50%, -96%) scale(.98);} to{ opacity:1; transform: translate(-50%, -100%) scale(1);} }
+
+/* Popup typography */
+#popup-content{
+  font-family: 'Audiowide', sans-serif; font-size: 15px; line-height: 1.5; color: var(--text-dark);
 }
 
-/* Scrollable text region when content is long */
-#popup-content {
-  flex: 1 1 auto;
-  overflow: auto;
-  padding: 8px 4px;
-  background: transparent;
-}
+/* Input focus/tap polish */
+.controls .btn:active{ transform: none; }
+.controls .btn:focus{ outline: none; background: var(--ui-bg); transform: none; }
+.controls .btn:focus-visible{ outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
+.controls .btn{ -webkit-tap-highlight-color: transparent; }
 
-/* (Legacy) entry animation kept for reference */
-@keyframes pop-in {
-  from { opacity: 0; transform: translate(-50%, -96%) scale(.98); }
-  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
-}
-
-/* Typography for popup text */
-#popup-content {
-  font-family: 'Audiowide', sans-serif;  
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--text-dark);
-}
-
-
-.controls .btn:active { transform: none; }
-.controls .btn:focus { outline: none; background: var(--ui-bg); transform: none; }
-.controls .btn:focus-visible { outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
-/* Remove tap highlight on mobile */
-.controls .btn { -webkit-tap-highlight-color: transparent; }
-
-
-
-/* ==========Responsive – Mobile =============== */
-
-@media (max-width: 768px) {
-  .controls {
-    top: 10px;
-    right: 4%;        
-    left: auto;
-    width: auto;       
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    gap: 6px;
+/* Responsive: mobile */
+@media (max-width: 768px){
+  .controls{
+    top: 10px; right: 4%; left: auto; width: auto;
+    flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 6px;
   }
-  .controls .btn,
-  .controls .color-picker {
-    height: 36px;
-    padding: 0 10px;
-    font-size: 14px;
-  }
+  .controls .btn, .controls .color-picker{ height: 36px; padding: 0 10px; font-size: 14px; }
 
-  /* Popup scales down and limits height for landscape phones */
-  .popup {
-    width: min(60vw, 360px);
-    max-height: 74vh;
-    padding: 12px 12px 14px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.4;
-    gap: 8px;
+  /* Popup scaled for small screens */
+  .popup{
+    width: min(60vw, 360px); max-height: 74vh;
+    padding: 12px 12px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; gap: 8px;
   }
   .popup-image{ max-height: 28vh; object-fit: contain; }
   #popup-content{ max-height: 34vh; overflow: auto; }
 
   .popup .close-btn{ width: 36px; height: 36px; font-size: 22px; }
 
-  /* Move CTA a bit lower on small screens */
-  #startBtn { top: 75%; }
-  #loading-text { top: 75%; }
+  /* Push CTA lower on tall mobiles */
+  #startBtn{ top: 75%; }
+  #loading-text{ top: 75%; }
 }
 
-/* ===========Responsive – Mobile Landscape ============ */
-@media (orientation: landscape) and (max-width: 920px) {
+/* Responsive: mobile landscape */
+@media (orientation: landscape) and (max-width: 920px){
   .popup{
-    width: min(52vw, 320px);
-    max-height: 64vh;
-    padding: 10px 12px;
-    font-size: 13px;
-    gap: 6px;
+    width: min(52vw, 320px); max-height: 64vh;
+    padding: 10px 12px; font-size: 13px; gap: 6px;
   }
   .popup-image{ max-height: 40vh; }
   #popup-content{ max-height: 30vh; }

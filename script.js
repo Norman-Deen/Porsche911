@@ -1,11 +1,11 @@
-// Core Three.js imports
+
 import * as THREE from './three/build/three.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from './three/examples/jsm/loaders/DRACOLoader.js';
 import { RGBELoader } from './three/examples/jsm/loaders/RGBELoader.js';
-
 import { playCameraMove,playDemoCamera,bootAudio } from './animate.js';
+
 
 
 // Create a scene
@@ -14,7 +14,6 @@ window.scene = scene;
 
 
 //#region Points 
-
 // Point 1
 const pointGeometry1 = new THREE.SphereGeometry(0.05, 3, 3);
 const pointMaterial1 = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
@@ -39,7 +38,6 @@ scene.add(pointMesh3);
 pointMesh1.visible = false;
 pointMesh2.visible = false;
 pointMesh3.visible = false;
-
 //#endregion
 
 
