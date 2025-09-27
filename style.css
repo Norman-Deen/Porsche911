@@ -1,12 +1,20 @@
-/* =========================
-   Global Reset & Page BG
-   ========================= */
+/* ====Global Reset & Page BG ======= */
+ 
 *{ margin:0; padding:0; }
 body{ background-color: rgb(178,178,178); }
 
-/* =========================
-   Loading Screen (full-page)
-   ========================= */
+:root{
+  --ui-bg: rgba(0,0,0,0.75);
+  --ui-hover: rgba(118,118,118,0.9);
+  --ui-border: rgba(255,255,255,0.15);
+  --ui-border-strong: rgba(255,255,255,0.35);
+  --card-bg: rgba(255,255,255,0.86);
+  --card-border: rgba(0,0,0,0.12);
+}
+
+
+
+/* ===========Loading Screen (full-page)========== */
 #loading-screen {
   position: fixed;
   inset: 0;
@@ -32,9 +40,7 @@ body{ background-color: rgb(178,178,178); }
   font-family: 'Orbitron', sans-serif; 
 }
 
-/* =========================
-   Start Button (CTA)
-   ========================= */
+/* ==========Start Button (CTA)========== */
 #startBtn {
   position: absolute;
   top: 73%;                 
@@ -63,16 +69,12 @@ body{ background-color: rgb(178,178,178); }
   to   { transform: translate(-50%, -50%) scale(1.08); }
 }
 
-/* =========================
-   Top-right Controls (UI bar)
-   ========================= */
-/* NOTE: `display` is declared twice here (flex + none). Kept as-is
-   because JS toggles visibility. Consider toggling a class instead. */
+/* ======== Top-right Controls (UI bar)========== */
+  
 .controls {
   position: fixed;
   top: 20px;
   right: 20px;
-  display: flex;           
   flex-wrap: wrap;         
   gap: 8px 10px;
   z-index: 10000;
@@ -86,9 +88,9 @@ body{ background-color: rgb(178,178,178); }
   justify-content: center;
   height: 40px;
   padding: 0 20px;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-bg);
   border-radius: 5px;
-  background: rgba(0,0,0,0.75);
   color: #ffffffc1;
   font-size: 16px;
   line-height: 1;
@@ -99,8 +101,8 @@ body{ background-color: rgb(178,178,178); }
 /* Hover/Focus states (shared with color-picker) */
 .controls .btn:hover,
 .color-picker:hover {
-  background: rgba(118, 118, 118, 0.9);
-  border-color: rgba(255,255,255,0.35);
+  background: var(--ui-hover);
+  border-color: var(--ui-border-strong);
   transform: translateY(-1px);
 }
 /* Remove hover styles on keyboard-only focus to avoid “stuck hover” look */
@@ -121,18 +123,16 @@ body{ background-color: rgb(178,178,178); }
   transform: none;
 }
 
-/* =========================
-   Color Picker (label wrapper)
-   ========================= */
+/* ========Color Picker (label wrapper)=============== */
 .color-picker {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 0 10px;
   height: 34px;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
-  background: rgba(0,0,0,0.75);
+  background: var(--ui-bg);
   color: #fff;
   font-family: 'Orbitron', sans-serif;
   font-size: 13px;
@@ -164,16 +164,12 @@ body{ background-color: rgb(178,178,178); }
 }
 .color-picker .reset-inside:hover { background: rgba(255,255,255,0.3); }
 
-/* =========================
-   Mode-based UI Hiding
-   (Intro/Demo modes controlled via body classes)
-   ========================= */
+/* ==========Mode-based UI Hiding (Intro/Demo modes controlled via body classes)=========== */
 body.demo-mode .controls .btn:not(#demoBtn) { display: none !important; }
 body.intro-mode .controls .btn:not(#startAnimBtn) { display: none !important; }
 
-/* =========================
-   Global Fade Layer (GSAP drives opacity)
-   ========================= */
+
+/* ===========Global Fade Layer (GSAP drives opacity)=================== */
 #fade {
   position: fixed;
   inset: 0;
@@ -183,18 +179,14 @@ body.intro-mode .controls .btn:not(#startAnimBtn) { display: none !important; }
   z-index: 1800;
 }
 
-/* =========================
-   WebGL Canvas (fullscreen)
-   ========================= */
+/* ============WebGL Canvas (fullscreen)================= */
 .canvas{
   position: fixed;
   left: 0;
   top: 0;
 }
 
-/* =========================
-   Pulsing Hotspots (DOM overlay)
-   ========================= */
+/* ==============Pulsing Hotspots (DOM overlay)============ */
 .pulse {
   position: fixed;
   transform: translate(-50%, -50%);
@@ -206,7 +198,7 @@ body.intro-mode .controls .btn:not(#startAnimBtn) { display: none !important; }
 .pulse img {
   width: 28px; height: 28px;
   display: block;
-  animation: pulse 1s infinite alternate; /* Gentle attention pulse */
+  animation: pulse 1s infinite alternate; 
 }
 @keyframes pulse {
   from { transform: scale(1); }
@@ -215,9 +207,7 @@ body.intro-mode .controls .btn:not(#startAnimBtn) { display: none !important; }
 /* Hide pulses during intro/demo sequences */
 body.ui-hide-pulses .pulse { display: none !important; }
 
-/* =========================
-   Popup Card (image + text)
-   ========================= */
+/* =============Popup Card (image + text)============= */
 .popup {
   position: fixed;
   left: 0;                      
@@ -233,10 +223,10 @@ body.ui-hide-pulses .pulse { display: none !important; }
   /* Look & feel */
   padding: 14px 16px 18px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.86);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0,0,0,0.12);
+  border: 1px solid var(--card-border);
   box-shadow: 0 10px 30px rgba(0,0,0,0.18);
   color: #111;
   line-height: 1.45;
@@ -320,14 +310,15 @@ body.ui-hide-pulses .pulse { display: none !important; }
 
 
 .controls .btn:active { transform: none; }
-.controls .btn:focus { outline: none; background: rgba(0,0,0,0.75); transform: none; }
+.controls .btn:focus { outline: none; background: var(--ui-bg); transform: none; }
 .controls .btn:focus-visible { outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
 /* Remove tap highlight on mobile */
 .controls .btn { -webkit-tap-highlight-color: transparent; }
 
-/* =========================
-   Responsive – Mobile
-   ========================= */
+
+
+/* ==========Responsive – Mobile =============== */
+
 @media (max-width: 768px) {
   .controls {
     top: 10px;
@@ -366,9 +357,7 @@ body.ui-hide-pulses .pulse { display: none !important; }
   #loading-text { top: 75%; }
 }
 
-/* =========================
-   Responsive – Mobile Landscape
-   ========================= */
+/* ===========Responsive – Mobile Landscape ============ */
 @media (orientation: landscape) and (max-width: 920px) {
   .popup{
     width: min(52vw, 320px);
