@@ -1,73 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="./src/assets/img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
-    <title>Porsche 911</title>
-     <!-- Import map to resolve local Three.js module paths -->
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "./three/build/three.module.js",
-          "three/addons/": "./three/examples/jsm/"
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/x-icon" href="./src/assets/img/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+
+  <title>Porsche 911</title>
+
+  <!-- Local Three.js import map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./three/build/three.module.js",
+        "three/addons/": "./three/examples/jsm/"
       }
-    </script>
+    }
+  </script>
 </head>
 <body>
 
-  <!-- شاشة التحميل -->
-<div id="loading-screen">
-  <img src="./src/assets/img/Loading.jpg" alt="Loading" />
-  <div id="loading-text">0%</div>
-  <button id="startBtn" class="btn">Start</button>
-</div>
+  <!-- Loading overlay -->
+  <div id="loading-screen">
+    <img src="./src/assets/img/Loading.jpg" alt="Loading" />
+    <div id="loading-text">0%</div>
+    <button id="startBtn" class="btn">Start</button>
+  </div>
 
-    <canvas class="canvas"></canvas>
+  <canvas class="canvas"></canvas>
    
- <!-- info  -->
-<div id="pulse-point1" class="pulse">
-  <img src="./src/assets/img/infoIcon.png" alt="info" />
-</div>
-<div id="pulse-point2" class="pulse">
-  <img src="./src/assets/img/infoIcon.png" alt="info" />
-</div>
-<div id="pulse-point3" class="pulse">
-  <img src="./src/assets/img/infoIcon.png" alt="info" />
-</div>
+  <!-- Info hotspots -->
+  <div id="pulse-point1" class="pulse">
+    <img src="./src/assets/img/infoIcon.png" alt="info" />
+  </div>
+  <div id="pulse-point2" class="pulse">
+    <img src="./src/assets/img/infoIcon.png" alt="info" />
+  </div>
+  <div id="pulse-point3" class="pulse">
+    <img src="./src/assets/img/infoIcon.png" alt="info" />
+  </div>
 
+  <!-- Popup (image + text) -->
+  <div id="popup" class="popup">
+    <button class="close-btn" aria-label="Close">×</button>
+    <img id="popup-image" class="popup-image" src="" alt="Info image" style="display: none;">
+    <div id="popup-content"></div>
+  </div>
 
- <!-- شاشة التحميل -->
-    <div id="popup" class="popup">
-  <button class="close-btn" aria-label="Close">×</button>
-  <img id="popup-image" class="popup-image" src="" alt="Info image" style="display: none;">
-  <div id="popup-content"></div>
-   </div>
+  <!-- Control bar -->
+  <div class="controls">
+    <label for="paintColor" class="btn color-picker">
+      Color
+      <input id="paintColor" type="color" value="#ff4444" />
+      <button type="button" id="resetPaint" class="reset-inside">⟲</button>
+    </label>
 
-<!--  btn  -->
-<div class="controls">
-  <label for="paintColor" class="btn color-picker">
-  Color
-  <input id="paintColor" type="color" value="#ff4444" />
-  <button type="button" id="resetPaint" class="reset-inside">⟲</button>
-</label>
+    <button id="startAnimBtn" class="btn">Intro</button>
+    <button id="demoBtn" class="btn">Demo</button>
+    <button id="muteBtn" class="btn">🔊</button>
+    <button id="abouttn" class="btn">About</button>
+  </div>
 
+  <!-- Fade layer for transitions -->
+  <div id="fade"></div>
 
-  <button id="startAnimBtn" class="btn">Intro</button>
-  <button id="demoBtn" class="btn">Demo</button>
-  <button id="muteBtn" class="btn">🔊</button>
-   <button id="abouttn" class="btn">About</button>
-</div>
-
-
- <!-- fade   -->
-<div id="fade"></div>
-
-
-<script type="module" src="script.js"></script>
-
+  <script type="module" src="script.js"></script>
 </body>
 </html>
