@@ -1,26 +1,27 @@
+/* =========================
+   Global Reset & Page BG
+   ========================= */
 *{ margin:0; padding:0; }
 body{ background-color: rgb(178,178,178); }
 
-
-
-
+/* =========================
+   Loading Screen (full-page)
+   ========================= */
 #loading-screen {
   position: fixed;
   inset: 0;
-  background: #ffffff;  /* مؤقت */
+  background: #ffffff;  
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
 }
-
 #loading-screen img {
-  max-width: 100vh;  /* أو أي مقاس يناسبك */
+  max-width: 100vh;  
   position: relative;
 }
-
 #loading-text {
-  position: absolute;
+  position: absolute; 
   top: 70%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -28,11 +29,15 @@ body{ background-color: rgb(178,178,178); }
   font-size: 26px;
   font-weight: 500;
   background: transparent;
-  font-family: 'Orbitron', sans-serif; /* 🔥 خط أقرب لستايل Porsche */
+  font-family: 'Orbitron', sans-serif; 
 }
+
+/* =========================
+   Start Button (CTA)
+   ========================= */
 #startBtn {
   position: absolute;
-  top: 73%;                 /* تحته بشوي من العداد */
+  top: 73%;                 
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 12px 24px;
@@ -43,43 +48,43 @@ body{ background-color: rgb(178,178,178); }
   font-size: 16px;
   font-family: 'Orbitron', sans-serif;
   cursor: pointer;
-  display: none;            /* مخفي بالبداية */
+  display: none;            
   transition: background 0.2s, transform 0.15s;
-  z-index: 2100;            /* أعلى من العداد */
+  z-index: 2100;            
 }
-
 #startBtn:hover {
   background: rgba(0,0,0,0.7);
   transform: translate(-50%, -50%) scale(1.05);
 }
-#startBtn {
-  animation: pulseScale 1.2s ease-in-out infinite alternate;
-}
-
+/* Subtle “breathing” animation to draw attention */
+#startBtn { animation: pulseScale 1.2s ease-in-out infinite alternate; }
 @keyframes pulseScale {
   from { transform: translate(-50%, -50%) scale(1); }
   to   { transform: translate(-50%, -50%) scale(1.08); }
 }
 
-
+/* =========================
+   Top-right Controls (UI bar)
+   ========================= */
+/* NOTE: `display` is declared twice here (flex + none). Kept as-is
+   because JS toggles visibility. Consider toggling a class instead. */
 .controls {
   position: fixed;
   top: 20px;
   right: 20px;
-  display: flex;
-  flex-wrap: wrap;          /* ✅ يلف على الشاشات الصغيرة */
+  display: flex;           
+  flex-wrap: wrap;         
   gap: 8px 10px;
   z-index: 10000;
   background: transparent;
   align-items: center;
-  display: none;
+  display: none;           
 }
-
 .controls .btn {
-  display: inline-flex;     /* ✅ توحيد المحاذاة العمودية */
+  display: inline-flex;    
   align-items: center;
   justify-content: center;
-  height: 40px;             /* ✅ نفس ارتفاع المنتقي */
+  height: 40px;
   padding: 0 20px;
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 5px;
@@ -91,38 +96,34 @@ body{ background-color: rgb(178,178,178); }
   transition: transform .1s ease, background .15s ease, border-color .15s ease;
   backdrop-filter: blur(6px);
 }
-
+/* Hover/Focus states (shared with color-picker) */
 .controls .btn:hover,
 .color-picker:hover {
-  background: rgba(118, 118, 118, 0.9);   /* ✅ غامق أنيق بدل الرمادي الفاتح */
+  background: rgba(118, 118, 118, 0.9);
   border-color: rgba(255,255,255,0.35);
   transform: translateY(-1px);
 }
-
+/* Remove hover styles on keyboard-only focus to avoid “stuck hover” look */
 .controls .btn:focus:not(:hover),
 .color-picker:focus:not(:hover) {
-  background: initial;   /* بيرجع للون الطبيعي */
-  border-color: initial; /* إذا بدك كمان يرجع البوردر */
-  transform: none;       /* يوقف الرفع */
+  background: initial;
+  border-color: initial;
+  transform: none;
 }
-
-
 .controls .btn:focus-visible {
   outline: 2px solid rgba(255,255,255,0.45);
   outline-offset: 2px;
 }
-
-.controls .btn:focus {
-  outline: none;
-}
+.controls .btn:focus { outline: none; }
+/* Keep button stable when focused but not hovered */
 .controls .btn:focus:not(:hover) {
-  background: rgba(0,0,0,0.75); /* نفس الطبيعي */
+  background: rgba(0,0,0,0.75);
   transform: none;
 }
 
-
-
-/* Label تبع اللون */
+/* =========================
+   Color Picker (label wrapper)
+   ========================= */
 .color-picker {
   display: inline-flex;
   align-items: center;
@@ -137,7 +138,6 @@ body{ background-color: rgb(178,178,178); }
   font-size: 13px;
   cursor: pointer;
 }
-
 .color-picker input[type="color"] {
   width: 22px;
   height: 22px;
@@ -150,8 +150,7 @@ body{ background-color: rgb(178,178,178); }
 }
 .color-picker input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 .color-picker input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
-
-/* زر Reset داخل الزر */
+/* Small inline reset button */
 .color-picker .reset-inside {
   margin-left: 6px;
   padding: 2px 6px;
@@ -163,21 +162,18 @@ body{ background-color: rgb(178,178,178); }
   cursor: pointer;
   transition: background 0.2s;
 }
-.color-picker .reset-inside:hover {
-  background: rgba(255,255,255,0.3);
-}
+.color-picker .reset-inside:hover { background: rgba(255,255,255,0.3); }
 
-/* for hide btn*/
-body.demo-mode .controls .btn:not(#demoBtn) {
-  display: none !important;
-}
-body.intro-mode .controls .btn:not(#startAnimBtn) {
-  display: none !important;
-}
+/* =========================
+   Mode-based UI Hiding
+   (Intro/Demo modes controlled via body classes)
+   ========================= */
+body.demo-mode .controls .btn:not(#demoBtn) { display: none !important; }
+body.intro-mode .controls .btn:not(#startAnimBtn) { display: none !important; }
 
-
-
-
+/* =========================
+   Global Fade Layer (GSAP drives opacity)
+   ========================= */
 #fade {
   position: fixed;
   inset: 0;
@@ -187,55 +183,54 @@ body.intro-mode .controls .btn:not(#startAnimBtn) {
   z-index: 1800;
 }
 
-
+/* =========================
+   WebGL Canvas (fullscreen)
+   ========================= */
 .canvas{
-    position: fixed;
-    left: 0;
-    top: 0;
+  position: fixed;
+  left: 0;
+  top: 0;
 }
 
+/* =========================
+   Pulsing Hotspots (DOM overlay)
+   ========================= */
 .pulse {
   position: fixed;
   transform: translate(-50%, -50%);
   z-index: 999;
-  display: none;
+  display: none;          
   cursor: pointer;
   background: transparent;
 }
-
 .pulse img {
-  width: 28px;   /* حجم الأيقونة */
-  height: 28px;
+  width: 28px; height: 28px;
   display: block;
-  animation: pulse 1s infinite alternate;
+  animation: pulse 1s infinite alternate; /* Gentle attention pulse */
 }
-
-
 @keyframes pulse {
   from { transform: scale(1); }
   to   { transform: scale(1.3); }
 }
-
+/* Hide pulses during intro/demo sequences */
 body.ui-hide-pulses .pulse { display: none !important; }
 
-
-
-
-
-/* Popup – أنيق وخفيف + دخول بلا قفزة */
+/* =========================
+   Popup Card (image + text)
+   ========================= */
 .popup {
   position: fixed;
-  left: 0;                          /* سيُضبط لاحقًا بالـ JS */
-  top: 0;                           /* سيُضبط لاحقًا بالـ JS */
-  transform: translate(-50%, -100%);/* افتراضيًا فوق النقطة */
+  left: 0;                      
+  top: 0;                        
+  transform: translate(-50%, -100%); 
   display: none;
 
-  /* أبعاد */
+  /* Sizing */
   width: clamp(260px, 86vw, 360px);
-  max-height: none;    /* السماح بالتمدد */
-  overflow: visible;   /* ما يخفـي شيء */
+  max-height: none;              
+  overflow: visible;
 
-  /* شكل */
+  /* Look & feel */
   padding: 14px 16px 18px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.86);
@@ -249,42 +244,36 @@ body.ui-hide-pulses .pulse { display: none !important; }
   z-index: 1000;
   user-select: text;
 
-  /* تخطيط داخلي */
+  /* Layout */
   display: flex;
   flex-direction: column;
   gap: 10px;
 
-  /* مهم: انتقالات لا تشمل left/top */
-  transition: opacity .18s ease, transform .18s ease; /* لا تضيف left/top هون */
+  /* Transitions (avoid animating left/top for stability) */
+  transition: opacity .18s ease, transform .18s ease;
 
-  /* مصدر أنيميشن الانبثاق يكون “ثابت” من جهة السهم */
+  /* Scale/transform origin follows arrow position (set via CSS var) */
   transform-origin: var(--arrow-x, 50%) var(--origin-y, 100%);
 
-  /* أداء (اختياري) */
-  will-change: transform, opacity; /* شِل left/top من will-change */
+  /* Performance hint */
+  will-change: transform, opacity;
 }
-
-/* اختياري: أنيميشن دخول لا يغيّر موضع الترجمة (فقط scale/opacity) */
+/* Optional in case you re-enable entry animation */
 @keyframes pop-in-stable {
   from { opacity: 0; transform: translate(-50%, -100%) scale(0.98); }
   to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 }
-/* لو بدك تستخدم الأنيميشن فوق، فعّله هيك: */
-/* .popup { animation: pop-in-stable 140ms ease-out; } */
-
-
-/* عطّل الأنيميشن أثناء القياس لتفادي الوميض */
+/* Disable animation while measuring (JS toggles this class) */
 .popup.appearing { animation: none !important; }
 
-
-/* زر إغلاق دائري صغير */
+/* Close button (accessible target size) */
 .popup .close-btn {
   position: absolute;
   top: 8px;
   right: 8px;
   width: 34px;
   height: 34px;
-  font-size: 24px; /* زيد حجم علامة × */
+  font-size: 24px;       
   display: grid;
   place-items: center;
   border-radius: 999px;
@@ -298,46 +287,42 @@ body.ui-hide-pulses .pulse { display: none !important; }
 }
 .popup .close-btn:hover { transform: scale(1.06); background: #fff; }
 
-/* الصورة: نسبة أبعاد ثابتة بلا تشويه */
+/* Image keeps aspect without distortion */
 .popup-image {
   display: block;
-  max-width: 100%;   /* يخليها تاخد عرض الكارد تقريباً */
+  max-width: 100%;
   height: auto;
   border-radius: 8px;
-  object-fit: contain; /* أو cover لو بدك اقتصاص */
+  object-fit: contain; 
 }
 
-
-/* النص: يتمرّر داخليًا عند الزيادة */
+/* Scrollable text region when content is long */
 #popup-content {
   flex: 1 1 auto;
   overflow: auto;
   padding: 8px 4px;
-  background: transparent;  /* يمنع لون رمادي موروث */
+  background: transparent;
 }
 
-/* حركة الظهور */
+/* (Legacy) entry animation kept for reference */
 @keyframes pop-in {
   from { opacity: 0; transform: translate(-50%, -96%) scale(.98); }
   to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 }
 
-
-
-
+/* Typography for popup text */
 #popup-content {
-  font-family: 'Audiowide', sans-serif;  /* 🔹 خط شبيه Porsche */
+  font-family: 'Audiowide', sans-serif;  
   font-size: 15px;
   line-height: 1.5;
-  
   color: #111;
 }
 
-
-
-
-
-
+/* =========================
+   Extra Interaction Polishing
+   ========================= */
+/* NOTE: Duplication with earlier :hover block; kept for current behavior.
+   TODO: You can merge the two hover rules into one to DRY. */
 .controls .btn:hover:not(:focus):not(:active),
 .color-picker:hover:not(:focus):not(:active) {
   background: rgba(118, 118, 118, 0.9);
@@ -347,26 +332,23 @@ body.ui-hide-pulses .pulse { display: none !important; }
 .controls .btn:active { transform: none; }
 .controls .btn:focus { outline: none; background: rgba(0,0,0,0.75); transform: none; }
 .controls .btn:focus-visible { outline: 2px solid rgba(255,255,255,0.45); outline-offset: 2px; }
-
-/* موبايل */
+/* Remove tap highlight on mobile */
 .controls .btn { -webkit-tap-highlight-color: transparent; }
 
-
-
-
-/* mobile */
+/* =========================
+   Responsive – Mobile
+   ========================= */
 @media (max-width: 768px) {
   .controls {
     top: 10px;
-     right: 4%;    /* المسافة من اليمين كنسبة */
-    left: auto;           /* ما يمد لليسار */
-    width: auto;          /* ياخد حجم الأزرار بس */
-    flex-direction: row;       
-    flex-wrap: nowrap;    
+    right: 4%;        
+    left: auto;
+    width: auto;       
+    flex-direction: row;
+    flex-wrap: nowrap;
     justify-content: flex-start;
     gap: 6px;
   }
-
   .controls .btn,
   .controls .color-picker {
     height: 36px;
@@ -374,41 +356,29 @@ body.ui-hide-pulses .pulse { display: none !important; }
     font-size: 14px;
   }
 
-
-.popup {
-  width: min(60vw, 360px);  /* ياخد الأصغر: 60% من العرض أو 360px */
-  max-height: 74vh;         /* يمنع يطلع برّا الشاشة */
-  padding: 12px 12px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.4;
-  gap: 8px;
-}
-
-  .popup-image{
-    max-height: 28vh;         /* الصورة ما تكسر الكارد */
-    object-fit: contain;
+  /* Popup scales down and limits height for landscape phones */
+  .popup {
+    width: min(60vw, 360px);
+    max-height: 74vh;
+    padding: 12px 12px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+    gap: 8px;
   }
-  #popup-content{
-    max-height: 34vh;         /* مساحة تمرير للنص */
-    overflow: auto;
-  }
-  .popup .close-btn{
-    width: 36px; height: 36px; font-size: 22px;  /* أكبر ولمس أسهل */
-  }
+  .popup-image{ max-height: 28vh; object-fit: contain; }
+  #popup-content{ max-height: 34vh; overflow: auto; }
 
-#startBtn {
-  top: 75%;                 /* تحته بشوي من العداد */
-}
-#loading-text {
-  top: 75%;
+  .popup .close-btn{ width: 36px; height: 36px; font-size: 22px; }
+
+  /* Move CTA a bit lower on small screens */
+  #startBtn { top: 75%; }
+  #loading-text { top: 75%; }
 }
 
-
-}
-
-
-/* موبايل + وضع أفقي: صغّر العرض والارتفاع */
+/* =========================
+   Responsive – Mobile Landscape
+   ========================= */
 @media (orientation: landscape) and (max-width: 920px) {
   .popup{
     width: min(52vw, 320px);
