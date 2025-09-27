@@ -390,11 +390,11 @@ body.ui-hide-pulses .pulse { display: none !important; }
   }
 
 #startBtn {
-
   top: 75%;                 /* تحته بشوي من العداد */
-
 }
-
+#loading-text {
+  top: 75%;
+}
 
 
 }
