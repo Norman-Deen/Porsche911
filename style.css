@@ -1,9 +1,10 @@
 /* ====Global Reset & Page BG & Colors======= */
  
 *{ margin:0; padding:0; }
-body{ background-color: rgb(178,178,178); }
+body{ background-color: var(--page-bg); }
 
 :root{
+  --page-bg: rgb(178,178,178);
   --ui-bg: rgba(0,0,0,0.75);
   --ui-hover: rgba(118,118,118,0.9);
   --ui-border: rgba(255,255,255,0.15);
@@ -15,6 +16,9 @@ body{ background-color: rgb(178,178,178); }
   --text-dark: #111;
   --popup-close-bg: rgba(255,255,255,0.9);
   --popup-close-hover: #fff;
+
+  --surface-light: #fff;
+  --backdrop-dark: #000;
 }
 
 
@@ -23,7 +27,7 @@ body{ background-color: rgb(178,178,178); }
 #loading-screen {
   position: fixed;
   inset: 0;
-  background: #ffffff;  
+  background: var(--surface-light); 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -178,7 +182,7 @@ body.intro-mode .controls .btn:not(#startAnimBtn) { display: none !important; }
 #fade {
   position: fixed;
   inset: 0;
-  background: #000;
+  background: var(--backdrop-dark); 
   opacity: 0;
   pointer-events: none;
   z-index: 1800;
