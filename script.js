@@ -18,6 +18,9 @@ window.scene = scene;
 
 // ---- Helpers ----
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+const _tmpVec3 = new THREE.Vector3();
+
+
 
 
 //#region Loading (Progress + Manager + Loaders)
@@ -58,10 +61,12 @@ const manager = new THREE.LoadingManager(
 const loader = new GLTFLoader(manager);
 
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+dracoLoader.setDecoderPath('./src/assets/draco/');
 loader.setDRACOLoader(dracoLoader);
 
+
 //#endregion
+
 
 
 //#region Camera / Renderer / Controls
@@ -78,7 +83,13 @@ const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(aspect1.width, aspect1.height);
 renderer.setPixelRatio(window.devicePixelRatio || 1);
 
-renderer.outputEncoding = THREE.sRGBEncoding;
+// Handle color space for both old/new Three.js versions
+if ('outputColorSpace' in renderer) {
+  renderer.outputColorSpace = THREE.SRGBColorSpace;   // r152+
+} else {
+  renderer.outputEncoding = THREE.sRGBEncoding;       // older versions
+}
+
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 4;
 
@@ -132,10 +143,19 @@ pointMesh3.visible = false;
 
 //#region Environment & Model (HDRI → GLTF)
 
-// HDRI then GLTF model 
+// HDRI → PMREM → environment, then GLTF
 new RGBELoader().load("./src/assets/img/MR_INT-005_WhiteNeons_NAD2K.hdr", (hdr) => {
-  hdr.mapping = THREE.EquirectangularReflectionMapping;
-  scene.environment = hdr;
+  // Create PMREM once we have renderer
+  const pmremGen = new THREE.PMREMGenerator(renderer);
+  pmremGen.compileEquirectangularShader();
+
+  // Build filtered env map (better reflections + performance)
+  const envMap = pmremGen.fromEquirectangular(hdr).texture;
+  scene.environment = envMap;
+
+  // Free original HDR & PMREM generator
+  hdr.dispose();
+  pmremGen.dispose();
 
   loader.load('./src/assets/3d/scene-draco.glb', (gltf) => {
     const car = gltf.scene;
@@ -143,16 +163,24 @@ new RGBELoader().load("./src/assets/img/MR_INT-005_WhiteNeons_NAD2K.hdr", (hdr) 
     scene.add(car);
 
     //#region Paint Materials (collect & UI bindings)
-    //Paint Materials 
+    // One-pass traverse: refresh all materials + collect paint mats
     const paintMats = [];
     car.traverse((obj) => {
       if (!obj.isMesh || !obj.material) return;
       const m = obj.material;
+
+      // ensure material refresh for all meshes
+      m.needsUpdate = true;
+
+      // detect car paint materials
       const name = (m.name || obj.name || "").toLowerCase();
       const looksLikePaint =
-        name.includes("body") || name.includes("paint") || name.includes("carpaint");
+        (m.metalness !== undefined) &&
+        (m.roughness !== undefined) &&
+        (name.includes("body") || name.includes("paint") || name.includes("carpaint"));
 
-      if (m.metalness !== undefined && m.roughness !== undefined && looksLikePaint) {
+      if (looksLikePaint) {
+        // store originals
         m.userData._origColor = m.color.clone();
         m.userData._origMetal = m.metalness;
         m.userData._origRough = m.roughness;
@@ -220,20 +248,14 @@ new RGBELoader().load("./src/assets/img/MR_INT-005_WhiteNeons_NAD2K.hdr", (hdr) 
         colorInput.value = colorToHex(paintMats[0].userData._origColor);
       }
     });
-   
     //#endregion
 
-    gltf.scene.traverse((child) => {
-      if (child.isMesh) {
-        if (child.material) child.material.needsUpdate = true;
-      }
-    });
+    // Free DRACO resources after load
+    dracoLoader.dispose();
   });
 });
 
 //#endregion
-
-
 
 
 
@@ -248,7 +270,7 @@ const pulseEls = [
 
 function updatePulseFor(el, mesh) {
   if (!el || !mesh) return;
-  const vector = mesh.getWorldPosition(new THREE.Vector3()).project(camera);
+  const vector = mesh.getWorldPosition(_tmpVec3).project(camera);
   const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
   const y = ( -vector.y * 0.5 + 0.5) * window.innerHeight;
   if (vector.z < -1 || vector.z > 1) {
@@ -433,21 +455,21 @@ window.addEventListener('keydown', (e) => {
 
 
 
-
 //#region Main Loop
 
 // Main Loop 
 function animate() {
   orbitControls.update();
   renderer.render(scene, camera);
-  requestAnimationFrame(animate);
+ 
   for (const item of pulseEls) {
     updatePulseFor(item.el, item.mesh);
   }
 }
-animate();
+renderer.setAnimationLoop(animate);
 
 //#endregion
+
 
 
 //#region Misc / Resize / Debug
@@ -459,7 +481,7 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(window.devicePixelRatio || 1);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 });
 
 function logCameraInfo() {
@@ -471,7 +493,6 @@ function logCameraInfo() {
 window.logCameraInfo = logCameraInfo;
 
 //#endregion
-
 
 
 
